@@ -1,0 +1,31 @@
+<resources>
+    <string name="app_name">PRJ_Android_DetectPothole</string>
+    <string name="API_KEY_MAP">AIzaSyBmA13NoLEK1oiDWoshS310QUBZrkJqekw</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="map">Map</string>
+    <string name="dashboard">Dashboard</string>
+    <string name="setting">Setting</string>
+    <string name="desc_img_profile">Image User Profile</string>
+    <string name="setting_title">SETTING</string>
+    <string name="account">Account</string>
+    <string name="change_password">Change Password</string>
+    <string name="edit_profile">Edit profile</string>
+    <string name="notification">Notification</string>
+    <string name="other">Other</string>
+    <string name="dark_mode">Dark mode</string>
+    <string name="language">Language</string>
+    <string name="update">Update</string>
+    <string name="current_password">Current Password</string>
+    <string name="wrong_password">Wrong Password!!!!</string>
+    <string name="next">Next</string>
+    <string name="new_password">New password</string>
+    <string name="confirm_new_password">Confirm new password</string>
+    <string name="ok">OK</string>
+    <string-array name="pothole_level">
+        <item>HIGH</item>
+        <item>MEDIUM</item>
+        <item>LOW</item>
+    </string-array>
+
+</resources>
