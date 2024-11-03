@@ -19,6 +19,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -30,6 +31,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
+import com.example.prj_android_detectpothole.OBJECT.MyMarker;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -53,7 +55,8 @@ public class MapFragment extends Fragment implements
     //Khai báo
     View view;
     LinearLayout linear_select_location;
-    Button btn_Show_Pothole, btn_Add_Pothole, btn_goback, btn_ok, btn_zoomOut;
+    Button btn_Show_Pothole, btn_Add_Pothole, btn_goback, btn_ok;
+    ImageButton btn_zoom_in,btn_zoom_out;
     EditText edt_Serch;
     private GoogleMap map;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
@@ -67,6 +70,8 @@ public class MapFragment extends Fragment implements
         btn_Add_Pothole = view.findViewById(R.id.btn_add_pothole);
         btn_goback = view.findViewById(R.id.btn_goBack);
         btn_ok = view.findViewById(R.id.btn_ok);
+        btn_zoom_in = view.findViewById(R.id.btn_zoom_in);
+        btn_zoom_out = view.findViewById(R.id.btn_zoom_out);
         edt_Serch = view.findViewById(R.id.edt_Serch);
         linear_select_location = view.findViewById(R.id.notify_select_location);
         linear_select_location.setVisibility(View.GONE);
@@ -93,11 +98,12 @@ public class MapFragment extends Fragment implements
                 edt_Serch.setVisibility(View.GONE);
                 btn_Add_Pothole.setVisibility(View.GONE);
                 btn_Show_Pothole.setVisibility(View.GONE);
+                btn_zoom_in.setVisibility(View.GONE);
+                btn_zoom_out.setVisibility(View.GONE);
                 linear_select_location.setVisibility(View.VISIBLE);
                 isAddPotholeMode = true;
                 LatLng center = map.getCameraPosition().target;
                 mark = map.addMarker(new MarkerOptions().position(center));
-                //openDialogAddPothole();
             }
         });
         btn_goback.setOnClickListener(new View.OnClickListener() {
@@ -106,6 +112,8 @@ public class MapFragment extends Fragment implements
                 edt_Serch.setVisibility(View.VISIBLE);
                 btn_Add_Pothole.setVisibility(View.VISIBLE);
                 btn_Show_Pothole.setVisibility(View.VISIBLE);
+                btn_zoom_in.setVisibility(View.VISIBLE);
+                btn_zoom_out.setVisibility(View.VISIBLE);
                 linear_select_location.setVisibility(View.GONE);
                 isAddPotholeMode = false;
                 if (mark != null) {
@@ -119,6 +127,8 @@ public class MapFragment extends Fragment implements
                 openDialogAddPothole();
             }
         });
+        btn_zoom_in.setOnClickListener(v -> map.animateCamera(CameraUpdateFactory.zoomIn()));
+        btn_zoom_out.setOnClickListener(v -> map.animateCamera(CameraUpdateFactory.zoomOut()));
         return view;
     }
     @Override
@@ -160,22 +170,23 @@ public class MapFragment extends Fragment implements
         }
         map.setMyLocationEnabled(false);
 
+        MyMarker myMarker = new MyMarker(1,10.869633,106.803269,"8 Street, Linh Xuan, Thu Duc, HCM City","HIGH");
+
         MarkerOptions markerOpt = new MarkerOptions();
         LatLng test = new LatLng(10.869633, 106.803269);
         markerOpt.position(test)
-                .title("HIGH")
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.error));
-        map.addMarker(markerOpt);
+        map.addMarker(markerOpt).setTag(myMarker);
 
+        myMarker = new MyMarker(1,10.873079,106.807883,"8 Street, Linh Xuan, Thu Duc, HCM City","MEDIUM");
         map.addMarker(new MarkerOptions()
                 .position(new LatLng(10.873079,106.807883))
-                .title("MEDIUM")
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.warning)));
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.warning))).setTag(myMarker);
 
+        myMarker = new MyMarker(1,10.864635,106.799511,"8 Street, Linh Xuan, Thu Duc, HCM City","LOW");
         map.addMarker(new MarkerOptions()
                 .position(new LatLng(10.864635,106.799511))
-                .title("LOW")
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.info)));
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.info))).setTag(myMarker);
 
         MyIn4WindowAdapter adapter = new MyIn4WindowAdapter(getActivity());
         map.setInfoWindowAdapter(adapter);
@@ -193,8 +204,8 @@ public class MapFragment extends Fragment implements
 
     @Override
     public void onMapClick(@NonNull LatLng latLng) {
-        String addr = getAddressFromLatLng(latLng.latitude,latLng.longitude);
-        Toast.makeText(getActivity(), "Addr: " + addr, Toast.LENGTH_SHORT).show();
+        //String addr = getAddressFromLatLng(latLng.latitude,latLng.longitude);
+        //Toast.makeText(getActivity(), "Addr: " + addr, Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -317,10 +328,13 @@ public class MapFragment extends Fragment implements
             @Override
             public void onClick(View view) {
                 //set data roi post lên sever
-
                 String level = spinner.getSelectedItem().toString();
                 if (mark != null) {
-                    mark.setTitle(level);
+                    double lat = mark.getPosition().latitude;
+                    double lon = mark.getPosition().longitude;
+                    String addr = getAddressFromLatLng(lat,lon);
+                    MyMarker mMarker = new MyMarker(1,lat,lon,addr,level);
+                    mark.setTag(mMarker);
                     switch (level) {
                         case "HIGH":
                             mark.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.error));
@@ -339,6 +353,8 @@ public class MapFragment extends Fragment implements
                 edt_Serch.setVisibility(View.VISIBLE);
                 btn_Add_Pothole.setVisibility(View.VISIBLE);
                 btn_Show_Pothole.setVisibility(View.VISIBLE);
+                btn_zoom_out.setVisibility(View.VISIBLE);
+                btn_zoom_in.setVisibility(View.VISIBLE);
                 linear_select_location.setVisibility(View.GONE);
                 isAddPotholeMode = false;
             }
@@ -356,11 +372,11 @@ public class MapFragment extends Fragment implements
                 // Trả về địa chỉ dạng chuỗi
                 return address.getAddressLine(0); // Địa chỉ đầy đủ
             } else {
-                return "Không tìm thấy địa chỉ";
+                return "NULL";
             }
         } catch (Exception e) {
             e.printStackTrace();
-            return "Không thể lấy địa chỉ";
+            return "NULL";
         }
     }
 

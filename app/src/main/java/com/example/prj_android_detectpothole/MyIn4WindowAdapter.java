@@ -9,6 +9,7 @@ import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 
+import com.example.prj_android_detectpothole.OBJECT.MyMarker;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.Marker;
 import com.makeramen.roundedimageview.RoundedImageView;
@@ -39,22 +40,23 @@ public class MyIn4WindowAdapter implements GoogleMap.InfoWindowAdapter {
 
         //Obj obj = marker.getTag();
         //obj lưu dữ liệu của 1 marker
-        if(Objects.equals(marker.getTitle(), "HIGH")){
+        MyMarker mMarker = (MyMarker) marker.getTag();
+        if(Objects.equals(mMarker.getLevel(), "HIGH")){
             contrain.setBackground(ContextCompat.getDrawable(context, R.drawable.bground_in4win_high));
             in4window_txt_level.setText("HIGH");
             in4window_txt_level.setTextColor(ContextCompat.getColor(context, R.color.red));
         }
-        else if (Objects.equals(marker.getTitle(), "MEDIUM")) {
+        else if (Objects.equals(mMarker.getLevel(), "MEDIUM")) {
             contrain.setBackground(ContextCompat.getDrawable(context, R.drawable.bground_in4win_medium));
             in4window_txt_level.setText("MEDIUM");
             in4window_txt_level.setTextColor(ContextCompat.getColor(context, R.color.orange));
         }
-        else if (Objects.equals(marker.getTitle(), "LOW")) {
+        else if (Objects.equals(mMarker.getLevel(), "LOW")) {
             contrain.setBackground(ContextCompat.getDrawable(context, R.drawable.bground_in4win_low));
             in4window_txt_level.setText("LOW");
             in4window_txt_level.setTextColor(ContextCompat.getColor(context, R.color.green));
         }
-
+        in4window_txt_addr.setText(mMarker.getAddr());
         return view;
     }
 
