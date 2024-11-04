@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg"
+    android:id="@+id/forgot_pass1">
+    <ImageView
+        android:id="@+id/btn_back"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="20dp"
+        android:src="@drawable/ic_back" />
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/header_background"
+        android:padding="16dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginTop="338dp">
+
+        <TextView
+            android:id="@+id/header"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="WELCOME !"
+            android:textColor="#FFFFFF"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:layout_centerHorizontal="true" />
+
+        <TextView
+            android:id="@+id/subheader"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Reset your password"
+            android:textStyle="italic"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:layout_below="@id/header"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="8dp"/>
+    </RelativeLayout>
+    <!-- Card Container -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginTop="430dp"
+        android:background="@drawable/white_rounded_background"
+        android:padding="20dp">
+
+
+
+
+
+        <!-- Mail Field -->
+        <RelativeLayout
+            android:id="@+id/mail_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="2dp"
+            android:layout_marginEnd="2dp"
+            android:layout_marginTop="24dp"
+            >
+
+            <ImageView
+                android:id="@+id/icon_mail"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/ic_mail"
+                android:layout_centerVertical="true" />
+
+            <EditText
+                android:id="@+id/mail"
+                android:layout_width="match_parent"
+                android:layout_height="53dp"
+                android:layout_toEndOf="@id/icon_mail"
+                android:layout_marginStart="12dp"
+                android:hint="Email"
+                android:textStyle="italic"
+                android:background="@drawable/rounded_button"
+                android:paddingStart="16dp"
+                android:textColor="#000000" />
+        </RelativeLayout>
+
+
+
+        <!-- Send code Button -->
+        <Button
+            android:id="@+id/send_code"
+            android:layout_width="match_parent"
+            android:layout_height="55dp"
+            android:layout_marginStart="2dp"
+            android:layout_marginEnd="2dp"
+            android:layout_marginTop="24dp"
+            android:layout_below="@id/mail_container"
+            android:text="Send code to email"
+            android:backgroundTint="#343737"
+
+            android:textColor="#FFFFFF" />
+
+
+
+
+
+    </RelativeLayout>
+</RelativeLayout>

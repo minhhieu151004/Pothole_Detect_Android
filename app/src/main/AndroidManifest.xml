@@ -28,6 +28,26 @@
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/API_KEY_MAP" />
+        <activity android:name=".WelcomeActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".LoginActivity"
+            tools:ignore="Instantiatable" />
+        <activity android:name=".SignUpActivity"
+            tools:ignore="Instantiatable" />
+        <activity
+            android:name=".ForgotPassword1Activity"
+            android:exported="false" />
+        <activity
+            android:name=".ForgotPassword2Activity"
+            android:exported="false" />
+        <activity
+            android:name=".ForgotPassword3Activity"
+            android:exported="false" />
     </application>
 
 </manifest>
