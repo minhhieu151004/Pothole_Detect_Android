@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg"
+    android:background="@drawable/bg3"
     android:id="@+id/welcome_screen">
 
     <!-- Language Selector Container -->
@@ -18,45 +19,11 @@
 
         <ImageView
             android:id="@+id/flag_image"
-            android:layout_width="24dp"
-            android:layout_height="16dp"
+            android:layout_width="28.8dp"
+            android:layout_height="19.2dp"
             android:layout_gravity="end"
             android:layout_marginBottom="4dp"
-            android:src="@drawable/vn_flag"/>
-
-        <TextView
-            android:id="@+id/language_label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="#343737"
-            android:padding="8dp"
-            android:text="LANGUAGE"
-            android:textColor="#FFFFFF"
-            android:textSize="14sp"
-            android:gravity="center" /> <LinearLayout
-        android:id="@+id/language_options"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="#FFFFFF"
-        android:orientation="vertical">
-
-        <TextView
-            android:id="@+id/english_option"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="8dp"
-            android:text="English"
-            android:background="#FFFFFF"
-            android:textColor="#000000"
-            android:gravity="center" /> <TextView
-            android:id="@+id/vietnamese_option"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="8dp"
-            android:text="Vietnamese"
-            android:background="#FFFFFF"
-            android:textColor="#000000"
-            android:gravity="center" /> </LinearLayout>
+            android:src="@drawable/uk_flag_ic"/>
     </LinearLayout>
 
     <!-- Rest of the layout remains the same -->
@@ -67,8 +34,9 @@
         android:layout_marginStart="28dp"
         android:layout_marginEnd="28dp"
         android:layout_marginTop="400dp"
-        android:text="Log in"
-        android:backgroundTint="#343737"
+        android:text="@string/log_in"
+        android:textStyle="bold"
+        android:background="@drawable/conner_button"
 
         android:textColor="#FFFFFF" />
 
@@ -80,44 +48,48 @@
         android:layout_marginStart="28dp"
         android:layout_marginEnd="28dp"
         android:layout_marginTop="467dp"
-        android:text="Sign up"
-        android:backgroundTint="#343737"
+        android:text="@string/sign_up"
+        android:textStyle="bold"
+        android:background="@drawable/conner_button"
         android:textColor="#FFFFFF"/>
 
     <TextView
         android:id="@+id/forgot_password"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:focusable="true"
         android:textColor="#000000"
         android:textSize="14sp"
-        android:textStyle="italic"
+        android:textStyle="italic|bold"
         android:clickable="true"
         android:layout_marginTop="530dp"
-        android:layout_marginRight="28dp"
-        android:layout_alignParentRight="true"
+        android:layout_marginEnd="28dp"
+        android:layout_alignParentEnd="true"
         android:text="@string/forgot_password"/>
 
     <TextView
         android:id="@+id/text_or"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textStyle="italic"
-        android:textColor="#140F0F"
+        android:textStyle="italic|bold"
+        android:textColor="@color/black_45"
         android:textSize="20sp"
         android:layout_marginTop="560dp"
         android:layout_centerHorizontal="true"
-        android:text="@string/text_or"/>
+        android:text="@string/text_or"
+        />
 
     <Button
+        android:padding="10dp"
         android:id="@+id/button_google"
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:text="Continue with Google"
+        android:text="@string/continue_with_google"
         android:textColor="#FFFFFF"
-        android:backgroundTint="#343737"
+        android:background="@drawable/conner_button"
         android:layout_marginStart="28dp"
         android:layout_marginEnd="28dp"
         android:layout_marginTop="613dp"
-        android:drawableLeft="@drawable/ic_google"/>
+        android:drawableStart="@drawable/ic_google"/>
 
 </RelativeLayout>

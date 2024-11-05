@@ -2,136 +2,137 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg">
-    <ImageView
+    android:background="@drawable/bg3">
+    <ImageButton
+        android:background="@color/trans"
         android:id="@+id/btn_back"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_marginStart="20dp"
         android:layout_marginTop="20dp"
         android:src="@drawable/ic_back" />
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@drawable/header_background"
-        android:padding="16dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
-        android:layout_marginTop="338dp">
 
-        <TextView
-            android:id="@+id/header"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="WELCOME !"
-            android:textColor="#FFFFFF"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            android:layout_centerHorizontal="true" />
-
-        <TextView
-            android:id="@+id/subheader"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Reset your password"
-            android:textStyle="italic"
-            android:textColor="#FFFFFF"
-            android:textSize="16sp"
-            android:layout_below="@id/header"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="8dp"/>
-    </RelativeLayout>
     <!-- Card Container -->
-    <RelativeLayout
+    <LinearLayout
+        android:gravity="center_vertical"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
-        android:layout_marginTop="430dp"
-        android:background="@drawable/white_rounded_background"
-        android:padding="20dp">
-
-        <!-- Password Field -->
-        <RelativeLayout
-            android:id="@+id/password_container"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+        <LinearLayout
+            android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="2dp"
-            android:layout_marginEnd="2dp"
-            android:layout_marginTop="16dp">
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:background="@drawable/header_background"
+            android:padding="16dp">
 
-            <ImageView
-                android:id="@+id/icon_password"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:src="@drawable/ic_lock"
-                android:layout_centerVertical="true" />
-
-            <EditText
-                android:id="@+id/password"
+            <TextView
+                android:id="@+id/header"
+                android:gravity="center"
                 android:layout_width="match_parent"
-                android:layout_height="53dp"
-                android:layout_toEndOf="@id/icon_password"
-                android:layout_marginStart="12dp"
-                android:hint="Password"
+                android:layout_height="wrap_content"
+                android:text="@string/welcome"
+                android:textColor="#FFFFFF"
+                android:textSize="24sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/sub_header"
+                android:gravity="center"
                 android:textStyle="italic"
-                android:background="@drawable/rounded_button"
-                android:paddingStart="16dp"
-                android:textColor="#000000"
-                android:inputType="textPassword" />
-        </RelativeLayout>
-        <!-- Confirm Password Field -->
-        <RelativeLayout
-            android:id="@+id/confirm_password_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/forgot_password_get_started"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="2dp"
-            android:layout_marginEnd="2dp"
-            android:layout_below="@id/password_container"
-            android:layout_marginTop="16dp">
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:background="@drawable/white_rounded_background"
+            android:padding="20dp">
 
 
-            <ImageView
-                android:id="@+id/icon_password2"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:src="@drawable/ic_lock"
-                android:layout_toEndOf="@id/icon_password2"
-                android:layout_centerVertical="true" />
-            <EditText
-                android:id="@+id/confirm_password"
+            <!-- Username Field -->
+            <LinearLayout
+                android:layout_marginTop="20dp"
+                android:weightSum="4"
+                android:orientation="horizontal"
                 android:layout_width="match_parent"
-                android:layout_height="53dp"
+                android:layout_height="wrap_content"
+                >
+
+                <ImageView
+                    android:layout_gravity="center_vertical"
+                    android:layout_width="0dp"
+                    android:layout_weight="0.5"
+                    android:scaleX="1.6"
+                    android:scaleY="1.6"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_lock" />
+
+                <EditText
+                    android:inputType="textPassword"
+                    android:id="@+id/password"
+                    android:layout_weight="3.5"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:padding="15dp"
+                    android:layout_marginStart="12dp"
+                    android:background="@drawable/rounded_button"
+                    android:hint="@string/password"
+                    android:textColor="#000000"
+                    android:textStyle="italic" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_marginTop="20dp"
+                android:weightSum="4"
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                >
+
+                <ImageView
+                    android:layout_gravity="center_vertical"
+                    android:layout_width="0dp"
+                    android:layout_weight="0.5"
+                    android:scaleX="1.6"
+                    android:scaleY="1.6"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_lock" />
+
+                <EditText
+                    android:inputType="textPassword"
+                    android:id="@+id/confirm_password"
+                    android:layout_weight="3.5"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:padding="15dp"
+                    android:layout_marginStart="12dp"
+                    android:background="@drawable/rounded_button"
+                    android:hint="@string/confirm_password"
+                    android:textColor="#000000"
+                    android:textStyle="italic" />
+            </LinearLayout>
+            <Button
+                android:id="@+id/reset_pass"
+                android:layout_width="match_parent"
+                android:layout_height="55dp"
+                android:layout_marginStart="2dp"
+                android:layout_marginTop="24dp"
+                android:layout_marginEnd="2dp"
+                android:background="@drawable/conner_button"
+                android:text="@string/reset_password"
+                android:textColor="#FFFFFF" />
 
 
-                android:layout_marginStart="51dp"
-                android:hint="Confirm password"
-                android:textStyle="italic"
-                android:background="@drawable/rounded_button"
-                android:paddingStart="16dp"
-                android:textColor="#000000"
-                android:inputType="textPassword" />
-        </RelativeLayout>
-
-
-
-        <!-- Send code Button -->
-        <Button
-            android:id="@+id/reset_pass"
-            android:layout_width="match_parent"
-            android:layout_height="55dp"
-            android:layout_marginStart="2dp"
-            android:layout_marginEnd="2dp"
-            android:layout_marginTop="24dp"
-            android:layout_below="@id/confirm_password_container"
-            android:text="Reset Password"
-            android:backgroundTint="#343737"
-
-            android:textColor="#FFFFFF" />
-
-
-
-
-
-    </RelativeLayout>
+            <!-- Text cố định -->
+        </LinearLayout>
+    </LinearLayout>
 </RelativeLayout>

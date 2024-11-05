@@ -90,6 +90,27 @@
             android:layout_height="1dp"
             android:background="@color/black" />
 
+        <Button
+            android:id="@+id/log_out_btn"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginTop="10dp"
+            android:gravity="center_vertical|start"
+            android:text="@string/log_out"
+            android:background="@color/white"
+            android:textAllCaps="false"
+            app:backgroundTint="@null"
+            android:textAlignment="viewStart"
+            android:textAppearance="?android:attr/textAppearanceMedium"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/black" />
+
         <!--Notification-->
         <LinearLayout
             android:layout_marginTop="40dp"

@@ -1,6 +1,7 @@
 package com.example.prj_android_detectpothole;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -17,7 +18,7 @@ import com.example.prj_android_detectpothole.language.data;
 public class SettingFragment extends Fragment {
     private Spinner spinner_language;
     private LanguageSpinnerAdapter languageAdapter;
-    private Button editProfileBtn, changePasswordBtn;
+    private Button editProfileBtn, changePasswordBtn, logOutBtn;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -52,6 +53,15 @@ public class SettingFragment extends Fragment {
                 transaction.replace(R.id.main_fragment, changePasswordFragment);
                 transaction.addToBackStack(null);
                 transaction.commit();
+            }
+        });
+
+        //Log out
+        logOutBtn = view.findViewById(R.id.log_out_btn);
+        logOutBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(requireContext(), WelcomeActivity.class));
             }
         });
 
