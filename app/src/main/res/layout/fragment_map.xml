@@ -26,7 +26,18 @@
         android:drawableRight="@drawable/find_icon"
         android:hint="Search"
         android:paddingLeft="20dp"
-        android:paddingRight="20dp" />
+        android:paddingRight="20dp"/>
+
+    <ImageButton
+        android:id="@+id/btn_moveToMyLocation"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:src="@drawable/ic_mygps"
+        android:layout_below="@+id/edt_Serch"
+        android:background="@drawable/circle_btn"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="10dp"/>
+
 
     <LinearLayout
         android:id="@+id/notify_select_location"
@@ -111,7 +122,7 @@
         android:layout_height="40dp"
         android:layout_above="@+id/btn_zoom_out"
         android:layout_alignParentRight="true"
-        android:layout_marginRight="9dp"
+        android:layout_marginRight="10dp"
         android:src="@drawable/zoom_in_icon"
         android:layout_marginBottom="3dp"
         android:backgroundTint="@color/white"
