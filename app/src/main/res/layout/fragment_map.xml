@@ -26,7 +26,11 @@
         android:drawableRight="@drawable/find_icon"
         android:hint="Search"
         android:paddingLeft="20dp"
-        android:paddingRight="20dp"/>
+        android:paddingRight="20dp"
+        android:imeOptions="actionSearch"
+        android:singleLine="true"
+        android:clickable="true"
+        android:focusableInTouchMode="true" />
 
     <ImageButton
         android:id="@+id/btn_moveToMyLocation"
@@ -37,6 +41,27 @@
         android:background="@drawable/circle_btn"
         android:layout_alignParentRight="true"
         android:layout_marginRight="10dp"/>
+
+    <ImageButton
+        android:id="@+id/btn_direction"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:src="@drawable/ic_direction"
+        android:layout_below="@+id/btn_moveToMyLocation"
+        android:background="@drawable/circle_btn"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="10dp"/>
+    <ImageButton
+        android:id="@+id/btn_cancel_routing"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:src="@drawable/ic_cancelrouting"
+        android:layout_below="@+id/btn_direction"
+        android:background="@drawable/circle_btn"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="10dp"/>
 
 
     <LinearLayout

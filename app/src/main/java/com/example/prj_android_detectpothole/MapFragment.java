@@ -2,24 +2,25 @@ package com.example.prj_android_detectpothole;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
-import android.nfc.Tag;
 import android.os.Bundle;
 import android.os.Looper;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -36,6 +37,8 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
+import com.example.prj_android_detectpothole.API.API_Routing;
+import com.example.prj_android_detectpothole.MODEL.MyRouting;
 import com.example.prj_android_detectpothole.OBJECT.MyMarker;
 import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -52,36 +55,50 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class MapFragment extends Fragment implements
         OnMapReadyCallback,
         ActivityCompat.OnRequestPermissionsResultCallback,
-        GoogleMap.OnCameraIdleListener {
+        GoogleMap.OnCameraIdleListener,
+        GoogleMap.OnMapClickListener {
+
 
     final public String TAG = "FragmentMap";
     //Khai báo
     View view;
     LinearLayout linear_select_location;
     Button btn_Show_Pothole, btn_Add_Pothole, btn_goback, btn_ok;
-    ImageButton btn_zoom_in, btn_zoom_out, btn_moveToMyLocation;
+    ImageButton btn_zoom_in, btn_zoom_out, btn_moveToMyLocation, btn_direction,btn_cancel_routing;
     EditText edt_Serch;
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
     private boolean permissionDenied = false;
     private boolean isAddPotholeMode = false;
+    private boolean isDirectionMode = false;
 
     private GoogleMap map;
+    LatLng latLng_userLocation;
     List<Marker> listMyMark;
     Marker mark;
+    Marker marker_search, current_marker;
+    Polyline polyline;
     FusedLocationProviderClient fusedLocationProviderClient;
     LocationRequest locationRequest;
 
@@ -91,9 +108,17 @@ public class MapFragment extends Fragment implements
             if(locationResult == null){
                 return;
             }
-            for (Location location: locationResult.getLocations()){
-                //LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-                //map.animateCamera(CameraUpdateFactory.newLatLng(latLng));
+            if(polyline!=null){
+                btn_cancel_routing.setVisibility(View.VISIBLE);
+            }
+            else btn_cancel_routing.setVisibility(View.GONE);
+
+            if(isDirectionMode){
+                for (Location location: locationResult.getLocations()){
+                    latLng_userLocation = new LatLng(location.getLatitude(), location.getLongitude());
+                    //map.animateCamera(CameraUpdateFactory.newLatLng(latLng));
+                    PlayRoute(2);
+                }
             }
         }
     };
@@ -106,9 +131,12 @@ public class MapFragment extends Fragment implements
         btn_zoom_in = view.findViewById(R.id.btn_zoom_in);
         btn_zoom_out = view.findViewById(R.id.btn_zoom_out);
         btn_moveToMyLocation = view.findViewById(R.id.btn_moveToMyLocation);
+        btn_direction = view.findViewById(R.id.btn_direction);
+        btn_cancel_routing = view.findViewById(R.id.btn_cancel_routing);
         edt_Serch = view.findViewById(R.id.edt_Serch);
         linear_select_location = view.findViewById(R.id.notify_select_location);
         linear_select_location.setVisibility(View.GONE);
+        btn_cancel_routing.setVisibility(View.GONE);
         listMyMark = new ArrayList<>();
     }
 
@@ -121,8 +149,8 @@ public class MapFragment extends Fragment implements
         mapFragment.getMapAsync(this);
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity());
         locationRequest = LocationRequest.create();
-        locationRequest.setInterval(200);
-        locationRequest.setFastestInterval(100);
+        locationRequest.setInterval(1000);
+        locationRequest.setFastestInterval(1000);
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
         //Event Button click
@@ -165,6 +193,63 @@ public class MapFragment extends Fragment implements
                 zoomToUserLocation();
             }
         });
+        edt_Serch.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View view, int keyCode, KeyEvent keyEvent) {
+                if (keyCode == KeyEvent.KEYCODE_ENTER && keyEvent.getAction() == KeyEvent.ACTION_DOWN) {
+                    String address = edt_Serch.getText().toString().trim();
+                    String addrKey = address.replace(' ','+');
+
+                    if (!address.isEmpty()) {
+                        LatLng latLng = getLatLngFromAddress(address);
+                        if(marker_search != null) marker_search.remove();
+                        if(latLng != null){
+                            String addr = getAddressFromLatLng(latLng.latitude,latLng.longitude);
+                            marker_search = map.addMarker(new MarkerOptions().position(latLng));
+                            marker_search.setTag("NotInfoWindow");
+                            current_marker = marker_search;
+                            zoomToLatLng(latLng);
+                        }
+                        else {
+                            Toast.makeText(getContext(), "Not found the address!", Toast.LENGTH_SHORT).show();
+                            edt_Serch.setText("");
+                        }
+                    } else {
+                        Toast.makeText(getContext(), "Please enter an address", Toast.LENGTH_SHORT).show();
+                    }
+                    hideKeyboard(edt_Serch);
+                    return true; // Đã xử lý sự kiện
+                }
+                return false; // Sự kiện không được xử lý, tiếp tục lan truyền
+            }
+        });
+        btn_direction.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(current_marker!=null){
+                    isDirectionMode = true;
+                    PlayRoute(1);
+                }
+                else Toast.makeText(getActivity(), "Current = null", Toast.LENGTH_SHORT).show();
+            }
+        });
+        btn_cancel_routing.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                edt_Serch.setText("");
+                if(current_marker != null) current_marker = null;
+                if(marker_search != null) {
+                    marker_search.remove();
+                    marker_search = null;
+                }
+                if(polyline != null) {
+                    polyline.remove();
+                    polyline = null;
+                }
+                isDirectionMode = false;
+                zoomToUserLocation();
+            }
+        });
         return view;
     }
 
@@ -199,7 +284,10 @@ public class MapFragment extends Fragment implements
         map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(@NonNull Marker marker) {
-                if (isAddPotholeMode) {
+                current_marker = marker;
+                if (isAddPotholeMode || "NotInfoWindow".equals(marker.getTag())) {
+                    LatLng latLng = new LatLng(marker.getPosition().latitude,marker.getPosition().longitude);
+                    zoomToLatLng(latLng);
                     return true;
                 }
                 return false;
@@ -234,6 +322,10 @@ public class MapFragment extends Fragment implements
         }
     }
 
+    @Override
+    public void onMapClick(@NonNull LatLng latLng) {
+    }
+
     private void zoomToUserLocation() {
         if (ActivityCompat.checkSelfPermission(getContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
@@ -253,7 +345,9 @@ public class MapFragment extends Fragment implements
             }
         });
     }
-
+    private void zoomToLatLng(LatLng latLng){
+        map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 18));
+    }
     private void CheckSettingAndStartLocationUpdates() {
         LocationSettingsRequest locationSettingsRequest = new LocationSettingsRequest.Builder()
                 .addLocationRequest(locationRequest).build();
@@ -280,7 +374,6 @@ public class MapFragment extends Fragment implements
             }
         });
     }
-
     private void StartLocationUpdates() {
         if (ActivityCompat.checkSelfPermission(getContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
@@ -441,6 +534,27 @@ public class MapFragment extends Fragment implements
             return "NULL";
         }
     }
+    public LatLng getLatLngFromAddress(String addr){
+        Geocoder geocoder = new Geocoder(getContext(), Locale.getDefault());
+        List<Address> addressList;
+        LatLng latLng = null;
+
+        try {
+            // Tìm kiếm danh sách địa chỉ khớp với chuỗi đầu vào
+            addressList = geocoder.getFromLocationName(addr, 1);
+            if (addressList != null && !addressList.isEmpty()) {
+                // Lấy địa chỉ đầu tiên và trích xuất lat, long
+                Address address = addressList.get(0);
+                double latitude = address.getLatitude();
+                double longitude = address.getLongitude();
+                latLng = new LatLng(latitude, longitude);
+            }
+        } catch (IOException e) {
+            Log.d(TAG,e.getMessage() );
+            e.printStackTrace();
+        }
+        return latLng;
+    }
     private void ViewVISIBLE(){
         edt_Serch.setVisibility(View.VISIBLE);
         btn_Add_Pothole.setVisibility(View.VISIBLE);
@@ -448,6 +562,7 @@ public class MapFragment extends Fragment implements
         btn_zoom_in.setVisibility(View.VISIBLE);
         btn_zoom_out.setVisibility(View.VISIBLE);
         btn_moveToMyLocation.setVisibility(View.VISIBLE);
+        btn_direction.setVisibility(View.VISIBLE);
         linear_select_location.setVisibility(View.GONE);
     }
     private void ViewGONE(){
@@ -457,6 +572,66 @@ public class MapFragment extends Fragment implements
         btn_zoom_in.setVisibility(View.GONE);
         btn_zoom_out.setVisibility(View.GONE);
         btn_moveToMyLocation.setVisibility(View.GONE);
+        btn_direction.setVisibility(View.GONE);
         linear_select_location.setVisibility(View.VISIBLE);
+    }
+    public void hideKeyboard(View view) {
+        InputMethodManager imm = (InputMethodManager) requireContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
+    private void CallApiRouting(double lat1, double lon1, double lat2, double lon2, int mode){
+        String s_waypoints = lat1 + "," + lon1 + "|" + lat2 + "," + lon2;
+        API_Routing.api_routing.getRouting(s_waypoints,"motorcycle",getString(R.string.GEOAPIFY_KEY))
+                .enqueue(new Callback<MyRouting>() {
+                    @Override
+                    public void onResponse(Call<MyRouting> call, Response<MyRouting> response) {
+                        MyRouting myRouting = response.body();
+                        if(myRouting!=null){
+                            MyRouting.Features ft = myRouting.features.get(0);
+                            MyRouting.Properties properties = ft.properties;
+                            MyRouting.Geometry geometry = ft.geometry;
+
+                            List<LatLng> latLngList = new ArrayList<>();
+                            List<List<Double>> list_coordinates = geometry.coordinates.get(0);
+                            for (List<Double> coordinate: list_coordinates) {
+                                LatLng latLng = new LatLng(coordinate.get(1),coordinate.get(0));
+                                latLngList.add(latLng);
+                            }
+                            PolylineOptions polylineOptions = new PolylineOptions()
+                                    .addAll(latLngList) // Thêm tất cả các điểm vào polyline
+                                    .width(20)      // Đặt độ rộng của đường
+                                    .color(Color.BLUE); // Đặt màu sắc của đường
+                            if(polyline!=null) polyline.remove();
+                            polyline=map.addPolyline(polylineOptions);
+
+                            if(mode == 1){
+                                LatLngBounds.Builder builder = new LatLngBounds.Builder();
+                                for (LatLng point : latLngList) {
+                                    builder.include(point);
+                                }
+                                LatLngBounds bounds = builder.build();
+                                map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100));
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<MyRouting> call, Throwable throwable) {
+                        Toast.makeText(getContext(), "Get Routing Error!", Toast.LENGTH_SHORT).show();
+                        Log.d(TAG,"onFailure");
+                    }
+                });
+    }
+    private void PlayRoute(int mode){
+        if(current_marker!=null && latLng_userLocation!=null && marker_search!=null){
+            double lat1 = latLng_userLocation.latitude;
+            double lon1 = latLng_userLocation.longitude;
+
+            LatLng destination = current_marker.getPosition();
+            double lat2 = destination.latitude;
+            double lon2 = destination.longitude;
+
+            CallApiRouting(lat1,lon1,lat2,lon2,mode);
+        }
     }
 }

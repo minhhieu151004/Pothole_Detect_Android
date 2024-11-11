@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">PRJ_Android_DetectPothole</string>
     <string name="API_KEY_MAP">AIzaSyBmA13NoLEK1oiDWoshS310QUBZrkJqekw</string>
+    <string name="GEOAPIFY_KEY">f7962c9506cc461884d044f6e86d3b2b</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="map">Map</string>
