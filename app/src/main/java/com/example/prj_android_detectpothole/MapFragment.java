@@ -2,6 +2,8 @@ package com.example.prj_android_detectpothole;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
@@ -10,6 +12,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
 import android.util.Log;
@@ -34,10 +37,12 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.example.prj_android_detectpothole.API.API_Routing;
+import com.example.prj_android_detectpothole.MODEL.MyApplication;
 import com.example.prj_android_detectpothole.MODEL.MyRouting;
 import com.example.prj_android_detectpothole.OBJECT.MyMarker;
 import com.google.android.gms.common.api.ResolvableApiException;
@@ -66,6 +71,7 @@ import com.google.android.gms.tasks.Task;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -119,6 +125,7 @@ public class MapFragment extends Fragment implements
                     //map.animateCamera(CameraUpdateFactory.newLatLng(latLng));
                     PlayRoute(2);
                 }
+                CheckPothole();
             }
         }
     };
@@ -256,7 +263,6 @@ public class MapFragment extends Fragment implements
     @Override
     public void onStart() {
         super.onStart();
-        Log.d(TAG, "onStart");
     }
 
     @Override
@@ -269,6 +275,7 @@ public class MapFragment extends Fragment implements
     public void onMapReady(@NonNull GoogleMap googleMap) {
         map = googleMap;
         enableMyLocation();
+        enableNotification();
         map.getUiSettings().setMyLocationButtonEnabled(false);
         map.getUiSettings().setMapToolbarEnabled(false);
         map.setInfoWindowAdapter(new MyIn4WindowAdapter(getActivity()));
@@ -398,6 +405,14 @@ public class MapFragment extends Fragment implements
         ActivityCompat.requestPermissions(getActivity(),new String[] {
                 android.Manifest.permission.ACCESS_FINE_LOCATION,
                 android.Manifest.permission.ACCESS_COARSE_LOCATION},LOCATION_PERMISSION_REQUEST_CODE);
+    }
+    private void enableNotification(){
+        if (ContextCompat.checkSelfPermission(getContext(), android.Manifest.permission.POST_NOTIFICATIONS)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(getActivity(),new String[] {
+                    android.Manifest.permission.ACCESS_FINE_LOCATION,
+                    android.Manifest.permission.ACCESS_COARSE_LOCATION},LOCATION_PERMISSION_REQUEST_CODE);
+        }
     }
     private void openDialogShowPothole() {
         final Dialog dialog = new Dialog(getContext());
@@ -587,31 +602,40 @@ public class MapFragment extends Fragment implements
                     public void onResponse(Call<MyRouting> call, Response<MyRouting> response) {
                         MyRouting myRouting = response.body();
                         if(myRouting!=null){
-                            MyRouting.Features ft = myRouting.features.get(0);
-                            MyRouting.Properties properties = ft.properties;
-                            MyRouting.Geometry geometry = ft.geometry;
+                            try{
+                                MyRouting.Features ft = myRouting.features.get(0);
+                                MyRouting.Properties properties = ft.properties;
+                                MyRouting.Geometry geometry = ft.geometry;
 
-                            List<LatLng> latLngList = new ArrayList<>();
-                            List<List<Double>> list_coordinates = geometry.coordinates.get(0);
-                            for (List<Double> coordinate: list_coordinates) {
-                                LatLng latLng = new LatLng(coordinate.get(1),coordinate.get(0));
-                                latLngList.add(latLng);
-                            }
-                            PolylineOptions polylineOptions = new PolylineOptions()
-                                    .addAll(latLngList) // Thêm tất cả các điểm vào polyline
-                                    .width(20)      // Đặt độ rộng của đường
-                                    .color(Color.BLUE); // Đặt màu sắc của đường
-                            if(polyline!=null) polyline.remove();
-                            polyline=map.addPolyline(polylineOptions);
-
-                            if(mode == 1){
-                                LatLngBounds.Builder builder = new LatLngBounds.Builder();
-                                for (LatLng point : latLngList) {
-                                    builder.include(point);
+                                List<LatLng> latLngList = new ArrayList<>();
+                                List<List<Double>> list_coordinates = geometry.coordinates.get(0);
+                                for (List<Double> coordinate: list_coordinates) {
+                                    LatLng latLng = new LatLng(coordinate.get(1),coordinate.get(0));
+                                    latLngList.add(latLng);
                                 }
-                                LatLngBounds bounds = builder.build();
-                                map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100));
+
+                                if(!latLngList.isEmpty()){
+                                    PolylineOptions polylineOptions = new PolylineOptions()
+                                            .addAll(latLngList) // Thêm tất cả các điểm vào polyline
+                                            .width(10)      // Đặt độ rộng của đường
+                                            .color(Color.BLUE); // Đặt màu sắc của đường
+                                    if(polyline!=null) polyline.remove();
+                                    polyline=map.addPolyline(polylineOptions);
+                                    if(mode == 1){
+                                        LatLngBounds.Builder builder = new LatLngBounds.Builder();
+                                        for (LatLng point : latLngList) {
+                                            builder.include(point);
+                                        }
+                                        LatLngBounds bounds = builder.build();
+                                        map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100));
+                                    }
+                                }
+                                Log.d(TAG,"onSuccess");
                             }
+                            catch (Exception e){
+                                Log.e(TAG,"Call api error: " + e.getMessage());
+                            }
+
                         }
                     }
 
@@ -634,4 +658,53 @@ public class MapFragment extends Fragment implements
             CallApiRouting(lat1,lon1,lat2,lon2,mode);
         }
     }
+    private void SendNotificationNearPothole(MyMarker myMarker){
+        Notification notification = new NotificationCompat.Builder(getActivity(), MyApplication.CHANNEL_ID)
+                .setContentTitle("Pothole near you!!!")
+                .setContentText("Address: "+myMarker.getAddr())
+                .setSmallIcon(R.drawable.pothole)
+                .build();
+
+        NotificationManager notificationManager = (NotificationManager) requireContext().getSystemService(Context.NOTIFICATION_SERVICE);
+        if(notificationManager!=null){
+            notificationManager.notify(GetNotificationID(),notification);
+            Log.d(TAG,"onSendNotificationNearPothole: ");
+        }
+        else {
+            Log.d(TAG,"onSendNotificationNearPothole: null notificationManager");
+        }
+
+    }
+    private int GetNotificationID(){
+        return (int) new Date().getTime();
+    }
+    private void CheckPothole(){
+        if(listMyMark!=null && !listMyMark.isEmpty() && latLng_userLocation!= null){
+            for(Marker mark : listMyMark){
+                float[] results = new float[1];
+                Location.distanceBetween(latLng_userLocation.latitude, latLng_userLocation.longitude, mark.getPosition().latitude, mark.getPosition().longitude, results);
+                float distance = results[0];
+                if(distance<30){
+                    if(mark.getSnippet()==null || !mark.getSnippet().equals("Notified")){
+                        mark.setSnippet("Notified");
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            if (ContextCompat.checkSelfPermission(getContext(), android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                                ActivityCompat.requestPermissions(getActivity(), new String[]{android.Manifest.permission.POST_NOTIFICATIONS}, 111);
+                            }
+                            else {
+                                MyMarker myMarker = (MyMarker) mark.getTag();
+                                if(myMarker!=null){
+                                    SendNotificationNearPothole(myMarker);
+                                    Log.d(TAG, "send notify: "+myMarker.getAddr());
+                                }
+                            }
+                        }
+                    }
+                }
+                else mark.setSnippet(null);
+            }
+        }
+
+    }
+
 }
