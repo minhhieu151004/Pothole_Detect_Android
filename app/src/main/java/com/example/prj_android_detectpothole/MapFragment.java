@@ -660,8 +660,8 @@ public class MapFragment extends Fragment implements
     }
     private void SendNotificationNearPothole(MyMarker myMarker){
         Notification notification = new NotificationCompat.Builder(getActivity(), MyApplication.CHANNEL_ID)
-                .setContentTitle("Pothole near you!!!")
-                .setContentText("Address: "+myMarker.getAddr())
+                .setContentTitle("Pothole ahead!!!")
+                .setContentText("Level: "+ myMarker.getLevel()+ "\n"+"Address: "+myMarker.getAddr())
                 .setSmallIcon(R.drawable.pothole)
                 .build();
 
@@ -684,7 +684,7 @@ public class MapFragment extends Fragment implements
                 float[] results = new float[1];
                 Location.distanceBetween(latLng_userLocation.latitude, latLng_userLocation.longitude, mark.getPosition().latitude, mark.getPosition().longitude, results);
                 float distance = results[0];
-                if(distance<30){
+                if(distance<50){
                     if(mark.getSnippet()==null || !mark.getSnippet().equals("Notified")){
                         mark.setSnippet("Notified");
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -706,5 +706,4 @@ public class MapFragment extends Fragment implements
         }
 
     }
-
 }
