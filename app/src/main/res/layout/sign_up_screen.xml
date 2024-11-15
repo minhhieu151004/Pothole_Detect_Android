@@ -190,6 +190,15 @@
                     android:textStyle="italic" />
             </LinearLayout>
 
+            <TextView
+                android:id="@+id/confirm_password_invalid"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/confirm_password_invalid"
+                android:textColor="@color/red"
+                android:textStyle="bold|italic"
+                android:visibility="invisible"/>
+
             <!-- Remember Me Checkbox -->
             <CheckBox
                 android:id="@+id/remember_me"
@@ -210,7 +219,7 @@
                 android:layout_marginStart="2dp"
                 android:layout_marginTop="3dp"
                 android:layout_marginEnd="2dp"
-                android:background="@drawable/conner_button"
+                android:background="@drawable/corner_button_gray"
                 android:text="@string/sign_up"
 
                 android:textColor="#FFFFFF" />
@@ -250,7 +259,7 @@
                 android:layout_marginStart="2dp"
                 android:padding="10dp"
                 android:layout_marginEnd="2dp"
-                android:background="@drawable/conner_button"
+                android:background="@drawable/corner_button_gray"
                 android:drawableStart="@drawable/ic_google"
                 android:text="@string/continue_with_google"
                 android:textColor="@color/white" />

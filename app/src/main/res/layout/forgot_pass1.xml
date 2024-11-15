@@ -15,24 +15,25 @@
 
     <!-- Card Container -->
     <LinearLayout
-        android:gravity="center_vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:gravity="center_vertical"
         android:orientation="vertical">
+
         <LinearLayout
-            android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
             android:layout_marginEnd="20dp"
             android:background="@drawable/header_background"
+            android:orientation="vertical"
             android:padding="16dp">
 
             <TextView
                 android:id="@+id/header"
-                android:gravity="center"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:gravity="center"
                 android:text="@string/welcome"
                 android:textColor="#FFFFFF"
                 android:textSize="24sp"
@@ -40,59 +41,59 @@
 
             <TextView
                 android:id="@+id/sub_header"
-                android:gravity="center"
-                android:textStyle="italic"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
+                android:gravity="center"
                 android:text="@string/forgot_password_get_started"
                 android:textColor="#FFFFFF"
-                android:textSize="16sp" />
+                android:textSize="16sp"
+                android:textStyle="italic" />
         </LinearLayout>
 
         <LinearLayout
-            android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
             android:layout_marginEnd="20dp"
             android:background="@drawable/white_rounded_background"
+            android:orientation="vertical"
             android:padding="20dp">
 
 
             <!-- Username Field -->
             <LinearLayout
-                android:layout_marginTop="20dp"
-                android:weightSum="4"
-                android:orientation="horizontal"
                 android:id="@+id/username_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                >
+                android:layout_marginTop="20dp"
+                android:orientation="horizontal"
+                android:weightSum="4">
 
                 <ImageView
-                    android:layout_gravity="center_vertical"
                     android:id="@+id/icon_user"
                     android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
                     android:layout_weight="0.5"
                     android:scaleX="1.6"
                     android:scaleY="1.6"
-                    android:layout_height="wrap_content"
                     android:src="@drawable/ic_mail" />
 
                 <EditText
-                    android:inputType="textEmailAddress"
-                    android:id="@+id/username"
-                    android:layout_weight="3.5"
+                    android:id="@+id/email"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:padding="15dp"
                     android:layout_marginStart="12dp"
+                    android:layout_weight="3.5"
                     android:background="@drawable/rounded_button"
                     android:hint="@string/email"
+                    android:inputType="textEmailAddress"
+                    android:padding="15dp"
                     android:textColor="#000000"
                     android:textStyle="italic" />
             </LinearLayout>
+
             <Button
                 android:id="@+id/send_code"
                 android:layout_width="match_parent"
@@ -100,9 +101,9 @@
                 android:layout_marginStart="2dp"
                 android:layout_marginTop="24dp"
                 android:layout_marginEnd="2dp"
-                android:background="@drawable/conner_button"
+                android:background="@drawable/corner_button_gray"
                 android:text="@string/send_code"
-                android:textColor="#FFFFFF" />
+                android:textColor="@color/white" />
 
 
             <!-- Text cố định -->

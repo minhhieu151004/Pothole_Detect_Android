@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     tools:context=".DashboardFragment"
     android:background="@color/white"
-    android:weightSum="4"
+    android:weightSum="7"
     android:orientation="vertical">
     <LinearLayout
         android:layout_width="match_parent"
@@ -29,12 +29,14 @@
                 android:layout_height="match_parent"
                 android:orientation="vertical">
                 <TextView
+                    android:id="@+id/username_txt"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Bui Luu Kien Quoc"
                     android:textStyle="bold"
                     android:textSize="20sp"/>
                 <TextView
+                    android:id="@+id/email_txt"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="kienquoc2102bmt@gmail.com"
@@ -44,91 +46,109 @@
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>
-
     <LinearLayout
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
-        android:layout_marginBottom="10dp"
-        android:layout_marginTop="10dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:weightSum="2">
-        <LinearLayout
-            android:layout_weight="1"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:orientation="horizontal"
-            android:weightSum="4">
-            <ImageView
-                android:layout_weight="0.5"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:src="@drawable/trans_ic"/>
-            <TextView
-                android:layout_weight="3.5"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="120km/week"
-                android:textStyle="italic"
-                android:textColor="@color/blue"/>
-        </LinearLayout>
-        <LinearLayout
-            android:gravity="end"
-            android:layout_weight="1"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:orientation="horizontal"
-            android:weightSum="4">
-            <ImageView
-                android:layout_weight="0.5"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:src="@drawable/warning_ic"/>
-            <TextView
-                android:layout_weight="3.5"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="32 potholes"
-                android:textStyle="italic"
-                android:textColor="@color/red"/>
-        </LinearLayout>
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginTop="20dp"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="3"
-        android:weightSum="2"
-        android:orientation="vertical">
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
+        android:layout_weight="0.7"
+        android:background="@color/white"
+        android:orientation="horizontal"
+        android:weightSum="4">
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.8"
+            android:src="@drawable/trans_ic"/>
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="2.2"
+            android:text="12"
+            android:textSize="45dp"
+            android:gravity="center_vertical"
+            android:textStyle="bold"
+            android:textColor="@color/blue"
+            android:layout_marginStart="5dp"/>
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
             android:layout_weight="1"
-            android:orientation="horizontal"
-            android:weightSum="2">
-            <com.github.mikephil.charting.charts.PieChart
-                android:background="@drawable/custom_border"
-                android:id="@+id/pie_chart"
-                android:layout_weight="1"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"/>
-            <com.github.mikephil.charting.charts.LineChart
-                android:background="@drawable/custom_border"
-                android:id="@+id/line_chart"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"/>
-
-        </LinearLayout>
-        <com.github.mikephil.charting.charts.BarChart
-            android:background="@drawable/custom_border"
-            android:id="@+id/bar_chart"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"/>
+            android:text="Km/h"
+            android:textStyle="bold|italic"
+            android:textSize="18dp"
+            android:gravity="center_vertical"/>
     </LinearLayout>
-
+    <LinearLayout
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginTop="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.7"
+        android:background="@color/white"
+        android:orientation="horizontal"
+        android:weightSum="4">
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.8"
+            android:src="@drawable/warning_ic"/>
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="2.2"
+            android:text="32"
+            android:textSize="45dp"
+            android:gravity="center_vertical"
+            android:textStyle="bold"
+            android:textColor="@color/red"
+            android:layout_marginStart="5dp"/>
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="Pothole"
+            android:textStyle="bold|italic"
+            android:textSize="18dp"
+            android:gravity="center_vertical"/>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.5"
+        android:layout_margin="10dp"
+        android:orientation="horizontal"
+        android:weightSum="7">
+        <ImageButton
+            android:id="@+id/pickDate_btn"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:src="@drawable/calendar_ic"
+            android:background="@color/white"/>
+        <TextView
+            android:id="@+id/show_picked_date"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="3"
+            android:text="Date"
+            android:gravity="center_vertical"
+            android:textSize="18dp"
+            android:textStyle="bold"
+            android:textColor="@color/black_77"/>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_marginTop="30dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="3.9">
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/viewPageChart"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+    </LinearLayout>
 </LinearLayout>

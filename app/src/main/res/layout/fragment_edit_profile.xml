@@ -101,7 +101,7 @@
             android:layout_height="wrap_content"
             android:text="@string/update"
             android:textAllCaps="false"
-            android:background="@drawable/conner_button"
+            android:background="@drawable/corner_button_gray"
             android:textColor="@color/white"
             />
 

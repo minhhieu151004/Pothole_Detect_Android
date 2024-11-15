@@ -51,5 +51,6 @@
     <string name="verify">Verify</string>
     <string name="reset_password">Reset password</string>
     <string name="log_out">Log out</string>
+    <string name="confirm_password_invalid">Confirm Password invalid</string>
 
 </resources>
