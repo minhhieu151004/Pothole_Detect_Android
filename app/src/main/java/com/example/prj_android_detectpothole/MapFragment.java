@@ -1,20 +1,27 @@
 package com.example.prj_android_detectpothole;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.Dialog;
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -29,11 +36,17 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContract;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
@@ -41,10 +54,12 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
+import com.example.prj_android_detectpothole.API.API_Pothole;
 import com.example.prj_android_detectpothole.API.API_Routing;
 import com.example.prj_android_detectpothole.MODEL.MyApplication;
 import com.example.prj_android_detectpothole.MODEL.MyRouting;
 import com.example.prj_android_detectpothole.OBJECT.MyMarker;
+import com.example.prj_android_detectpothole.OBJECT.MyUserToken;
 import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -93,11 +108,39 @@ public class MapFragment extends Fragment implements
     Button btn_Show_Pothole, btn_Add_Pothole, btn_goback, btn_ok;
     ImageButton btn_zoom_in, btn_zoom_out, btn_moveToMyLocation, btn_direction,btn_cancel_routing;
     EditText edt_Serch;
+    ImageView image_Pothole;
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
+    private static final int GALLERY_PERMISSION_REQUEST_CODE = 2;
     private boolean permissionDenied = false;
     private boolean isAddPotholeMode = false;
     private boolean isDirectionMode = false;
+
+
+    ActivityResultLauncher<Intent> mActivityResultLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            new ActivityResultCallback<ActivityResult>() {
+                @Override
+                public void onActivityResult(ActivityResult result) {
+                    if(result.getResultCode() == Activity.RESULT_OK){
+                        Intent data = result.getData();
+                        if(data == null){
+                            return;
+                        }
+                        Uri uri = data.getData();
+                        mUri = uri;
+                        try {
+                            Bitmap bitmap= MediaStore.Images.Media.getBitmap(requireContext().getContentResolver(),uri);
+                            image_Pothole.setImageBitmap(bitmap);
+                        }
+                        catch (IOException e){
+                            e.printStackTrace();
+                            Log.e(TAG,"mActivityResultLauncher error: " + e.getMessage());
+                        }
+                    }
+                }
+            }
+    );
 
     private GoogleMap map;
     LatLng latLng_userLocation;
@@ -105,6 +148,8 @@ public class MapFragment extends Fragment implements
     Marker mark;
     Marker marker_search, current_marker;
     Polyline polyline;
+    Uri mUri;
+    ProgressDialog mProgressDialog;
     FusedLocationProviderClient fusedLocationProviderClient;
     LocationRequest locationRequest;
 
@@ -129,7 +174,6 @@ public class MapFragment extends Fragment implements
             }
         }
     };
-
     void findID(View view) {
         btn_Show_Pothole = view.findViewById(R.id.btn_show_pothole);
         btn_Add_Pothole = view.findViewById(R.id.btn_add_pothole);
@@ -154,6 +198,8 @@ public class MapFragment extends Fragment implements
         findID(view);
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+        mProgressDialog = new ProgressDialog(getContext());
+        mProgressDialog.setMessage("Please wait...");
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity());
         locationRequest = LocationRequest.create();
         locationRequest.setInterval(1000);
@@ -243,6 +289,7 @@ public class MapFragment extends Fragment implements
         btn_cancel_routing.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                PotholesMark_Visible();
                 edt_Serch.setText("");
                 if(current_marker != null) current_marker = null;
                 if(marker_search != null) {
@@ -263,6 +310,7 @@ public class MapFragment extends Fragment implements
     @Override
     public void onStart() {
         super.onStart();
+        GetAllPotholes();
     }
 
     @Override
@@ -276,6 +324,7 @@ public class MapFragment extends Fragment implements
         map = googleMap;
         enableMyLocation();
         enableNotification();
+        enableGallery();
         map.getUiSettings().setMyLocationButtonEnabled(false);
         map.getUiSettings().setMapToolbarEnabled(false);
         map.setInfoWindowAdapter(new MyIn4WindowAdapter(getActivity()));
@@ -291,7 +340,10 @@ public class MapFragment extends Fragment implements
         map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(@NonNull Marker marker) {
-                current_marker = marker;
+                if(polyline==null){
+                    current_marker = marker;
+                }
+
                 if (isAddPotholeMode || "NotInfoWindow".equals(marker.getTag())) {
                     LatLng latLng = new LatLng(marker.getPosition().latitude,marker.getPosition().longitude);
                     zoomToLatLng(latLng);
@@ -324,9 +376,14 @@ public class MapFragment extends Fragment implements
             } else {
                 Toast.makeText(getActivity(), "Quyền vị trí bị từ chối", Toast.LENGTH_SHORT).show();
             }
-
-            return;
         }
+        if (requestCode == GALLERY_PERMISSION_REQUEST_CODE) {
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                enableGallery();
+            }
+        }
+
     }
 
     @Override
@@ -414,8 +471,27 @@ public class MapFragment extends Fragment implements
                     android.Manifest.permission.ACCESS_COARSE_LOCATION},LOCATION_PERMISSION_REQUEST_CODE);
         }
     }
+    private  void enableGallery(){
+        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.M){
+            //openGallery();
+            return;
+        }
+
+        if(ContextCompat.checkSelfPermission(getContext(), Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions(getActivity(),new String[] {
+                    Manifest.permission.READ_EXTERNAL_STORAGE},GALLERY_PERMISSION_REQUEST_CODE);
+        }
+    }
+    private void openGallery() {
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        mActivityResultLauncher.launch(Intent.createChooser(intent, "Select Picture"));
+    }
+
     private void openDialogShowPothole() {
-        final Dialog dialog = new Dialog(getContext());
+        Dialog dialog = new Dialog(getContext());
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.layout_dialog_show_pothole);
 
@@ -434,8 +510,9 @@ public class MapFragment extends Fragment implements
 
         dialog.show();
     }
+
     private void openDialogAddPothole() {
-        final Dialog dialog = new Dialog(getContext());
+        Dialog dialog = new Dialog(getContext());
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.layout_dialog_add_pothole);
 
@@ -456,6 +533,7 @@ public class MapFragment extends Fragment implements
         btn_Cancel = dialog.findViewById(R.id.btn_Cancel);
         btn_Submit = dialog.findViewById(R.id.btn_Submit);
         TextView dialog_head = dialog.findViewById(R.id.dialog_head);
+        image_Pothole = dialog.findViewById(R.id.dialog_img);
         Spinner spinner = dialog.findViewById(R.id.dialog_spinner);
 
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getContext(),
@@ -492,6 +570,13 @@ public class MapFragment extends Fragment implements
             }
         });
 
+        image_Pothole.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openGallery();
+            }
+        });
+
         btn_Cancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -503,30 +588,20 @@ public class MapFragment extends Fragment implements
             @Override
             public void onClick(View view) {
                 //set data roi post lên sever
+                mProgressDialog.show();
                 String level = spinner.getSelectedItem().toString();
                 if (mark != null) {
                     double lat = mark.getPosition().latitude;
                     double lon = mark.getPosition().longitude;
                     String addr = getAddressFromLatLng(lat,lon);
-                    MyMarker mMarker = new MyMarker(1,lat,lon,addr,level);
-                    mark.setTag(mMarker);
-                    switch (level) {
-                        case "HIGH":
-                            mark.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.error));
-                            break;
-                        case "MEDIUM":
-                            mark.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.warning));
-                            break;
-                        case "LOW":
-                            mark.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.info));
-                            break;
-                    }
-                    listMyMark.add(mark);
+                    String img = "https://st3.depositphotos.com/1005979/18725/i/1600/depositphotos_187252966-stock-photo-potholes-ahead-danger-warning-sign.jpg";
+                    MyMarker mMarker = new MyMarker("1",lat,lon,addr,level,img);
+                    PostPothole(mMarker);
                 }
-                Toast.makeText(getActivity(), "Submit successfully!", Toast.LENGTH_SHORT).show();
                 dialog.dismiss();
                 ViewVISIBLE();
                 isAddPotholeMode = false;
+                mProgressDialog.dismiss();
             }
         });
         dialog.show();
@@ -615,6 +690,7 @@ public class MapFragment extends Fragment implements
                                 }
 
                                 if(!latLngList.isEmpty()){
+                                    PotholesMark_Hide(latLngList);
                                     PolylineOptions polylineOptions = new PolylineOptions()
                                             .addAll(latLngList) // Thêm tất cả các điểm vào polyline
                                             .width(10)      // Đặt độ rộng của đường
@@ -705,5 +781,108 @@ public class MapFragment extends Fragment implements
             }
         }
 
+    }
+    private void PostPothole(MyMarker marker){
+        API_Pothole.api_pothole.post_pothole(marker).enqueue(new Callback<MyMarker>() {
+            @Override
+            public void onResponse(Call<MyMarker> call, Response<MyMarker> response) {
+                MyMarker responseMarker = response.body();
+                if(responseMarker != null){
+                    if (mark != null) {
+                        String img = "https://st3.depositphotos.com/1005979/18725/i/1600/depositphotos_187252966-stock-photo-potholes-ahead-danger-warning-sign.jpg";
+                        responseMarker.setImg(img);
+                        mark.setTag(responseMarker);
+                        switch (responseMarker.getLevel()) {
+                            case "HIGH":
+                                mark.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.error));
+                                break;
+                            case "MEDIUM":
+                                mark.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.warning));
+                                break;
+                            case "LOW":
+                                mark.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.info));
+                                break;
+                        }
+                        listMyMark.add(mark);
+                        Toast.makeText(getActivity(), "Submit successfully!", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<MyMarker> call, Throwable throwable) {
+                if (mark != null) {
+                    mark.remove();
+                }
+                Toast.makeText(getActivity(), "Fail to POST a pothole!!", Toast.LENGTH_SHORT).show();
+                Log.d(TAG,throwable.getMessage());
+            }
+        });
+    }
+    private void GetAllPotholes(){
+        API_Pothole.api_pothole.get_all_pothole().enqueue(new Callback<List<MyMarker>>() {
+            @Override
+            public void onResponse(Call<List<MyMarker>> call, Response<List<MyMarker>> response) {
+                List<MyMarker> list = response.body();
+                if(list!=null && !list.isEmpty()){
+                    for (MyMarker myMarker : list){
+                        try{
+                            String img = "https://st3.depositphotos.com/1005979/18725/i/1600/depositphotos_187252966-stock-photo-potholes-ahead-danger-warning-sign.jpg";
+                            myMarker.setImg(img);
+                            LatLng latLng = new LatLng(myMarker.getLatitude(),myMarker.getLongitude());
+                            Marker marker = map.addMarker(new MarkerOptions().position(latLng));
+                            marker.setTag(myMarker);
+                            switch (myMarker.getLevel()) {
+                                case "HIGH":
+                                    marker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.error));
+                                    break;
+                                case "MEDIUM":
+                                    marker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.warning));
+                                    break;
+                                case "LOW":
+                                    marker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.info));
+                                    break;
+                            }
+                            listMyMark.add(marker);
+
+                        }
+                        catch (Exception e){
+                            Log.e(TAG,"Get pothole error: " + e.getMessage());
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<MyMarker>> call, Throwable throwable) {
+                Log.e(TAG,"Fail to get Potholes: " + throwable.getMessage());
+            }
+        });
+    }
+    private void PotholesMark_Visible(){
+        for(Marker mark : listMyMark){
+            mark.setVisible(true);
+        }
+    }
+    private void PotholesMark_Hide(List<LatLng> latLngList){
+        if(listMyMark!=null){
+            for(Marker marker : listMyMark){
+                LatLng marker_latlng = marker.getPosition();
+                int i = 0;
+                for(LatLng latLng : latLngList){
+                    i++;
+                    float[] results = new float[1];
+                    Location.distanceBetween(marker_latlng.latitude, marker_latlng.longitude, latLng.latitude, latLng.longitude, results);
+                    float distance = results[0];
+                    if(distance < 15){
+                        marker.setVisible(true);
+                        break;
+                    }
+                    if(i == latLngList.size()){
+                        marker.setVisible(false);
+                    }
+                }
+            }
+        }
     }
 }

@@ -2,18 +2,32 @@ package com.example.prj_android_detectpothole.OBJECT;
 
 import android.graphics.Bitmap;
 
+import com.google.gson.annotations.SerializedName;
+
 public class MyMarker {
-    int idMark;
+    @SerializedName("_id")
+    String idMark;
     String level;
     double latitude, longitude;
+    @SerializedName("street")
     String addr;
+    String img;
 
-    public MyMarker(int idMark, double latitude, double longitude, String addr, String level) {
+    public MyMarker(String idMark, double latitude, double longitude, String addr, String level, String img) {
         this.idMark = idMark;
         this.latitude = latitude;
         this.longitude = longitude;
         this.addr = addr;
         this.level = level;
+        this.img = img;
+    }
+
+    public String getImg() {
+        return img;
+    }
+
+    public void setImg(String img) {
+        this.img = img;
     }
 
     public double getLatitude() {
@@ -40,11 +54,11 @@ public class MyMarker {
         this.addr = addr;
     }
 
-    public int getIdMark() {
+    public String getIdMark() {
         return idMark;
     }
 
-    public void setIdMark(int idMark) {
+    public void setIdMark(String idMark) {
         this.idMark = idMark;
     }
 

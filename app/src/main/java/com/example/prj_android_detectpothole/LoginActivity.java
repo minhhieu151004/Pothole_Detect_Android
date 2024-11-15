@@ -13,6 +13,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.prj_android_detectpothole.OBJECT.MyUserToken;
+
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -109,6 +111,7 @@ public class LoginActivity extends AppCompatActivity {  // Phải kế thừa t�
         editor.putString("email", email);
         editor.putLong("expireTime", expireTime);
         editor.apply();
+        MyUserToken.token = accessToken;
     }
 
 

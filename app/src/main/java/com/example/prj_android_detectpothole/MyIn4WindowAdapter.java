@@ -1,6 +1,7 @@
 package com.example.prj_android_detectpothole;
 
 import android.app.Activity;
+import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.widget.TextView;
 
@@ -9,6 +10,9 @@ import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.CustomTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.example.prj_android_detectpothole.OBJECT.MyMarker;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
@@ -60,6 +64,17 @@ public class MyIn4WindowAdapter implements GoogleMap.InfoWindowAdapter {
                 in4window_txt_level.setTextColor(ContextCompat.getColor(context, R.color.green));
             }
             in4window_txt_addr.setText(mMarker.getAddr());
+            Glide.with(context).load(mMarker.getImg()).into(new CustomTarget<Drawable>() {
+                @Override
+                public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
+                    in4window_img.setImageDrawable(resource);
+                }
+
+                @Override
+                public void onLoadCleared(@Nullable Drawable placeholder) {
+                    in4window_img.setImageDrawable(placeholder);
+                }
+            });
         }
         return view;
     }

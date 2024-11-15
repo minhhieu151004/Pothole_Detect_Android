@@ -8,10 +8,13 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 public class WelcomeActivity extends AppCompatActivity {
+
+    Button button_login;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -25,7 +28,8 @@ public class WelcomeActivity extends AppCompatActivity {
         }
 
         // Navigate to LoginActivity
-        findViewById(R.id.button_login).setOnClickListener(new View.OnClickListener() {
+        button_login = findViewById(R.id.button_login);
+        button_login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "Login button clicked");

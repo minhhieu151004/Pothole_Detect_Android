@@ -10,17 +10,15 @@
 
         <com.makeramen.roundedimageview.RoundedImageView
             android:id="@+id/in4window_img"
-            android:layout_width="match_parent"
+            android:layout_width="200dp"
             android:layout_height="130dp"
             android:layout_margin="5dp"
             android:scaleType="fitXY"
             android:src="@drawable/pothole_sample"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:riv_corner_radius="15dp"
-            tools:layout_editor_absoluteY="8dp" />
+            app:riv_corner_radius="15dp" />
 
         <TextView
             android:id="@+id/level"

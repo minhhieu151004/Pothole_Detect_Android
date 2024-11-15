@@ -1,7 +1,10 @@
 package com.example.prj_android_detectpothole;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.util.Log;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -13,6 +16,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.example.prj_android_detectpothole.OBJECT.MyUserToken;
 import com.example.prj_android_detectpothole.databinding.ActivityMainBinding;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -27,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
     private Fragment dashboardFragment;
     private Fragment settingFragment;
     private Fragment mapFragment;
-
+    final public String TAG = "MainActivity";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,6 +59,10 @@ public class MainActivity extends AppCompatActivity {
             }
             return true;
         });
+
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        MyUserToken.token = sharedPreferences.getString("accessToken",null);
+        Log.d(TAG,"MainActivity: " + MyUserToken.token);
     }
 
     //Function
