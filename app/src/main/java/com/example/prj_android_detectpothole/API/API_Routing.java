@@ -26,4 +26,9 @@ public interface API_Routing {
     Call<MyRouting> getRouting(@Query("waypoints") String waypoints,
                                @Query("mode") String mode,
                                @Query("apiKey") String apiKey);
+    @GET("v1/routing")
+    Call<MyRouting> getRoutingAvoidPotholes(@Query("waypoints") String waypoints,
+                                            @Query("mode") String mode,
+                                            @Query("avoid") String advoid,
+                                            @Query("apiKey") String apiKey);
 }

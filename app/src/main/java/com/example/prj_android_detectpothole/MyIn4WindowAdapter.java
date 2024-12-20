@@ -1,9 +1,12 @@
 package com.example.prj_android_detectpothole;
 
 import android.app.Activity;
+import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -28,7 +31,6 @@ public class MyIn4WindowAdapter implements GoogleMap.InfoWindowAdapter {
     private TextView in4window_txt_level, in4window_txt_addr, level;
     private ConstraintLayout contrain;
     View view;
-
     public MyIn4WindowAdapter(Activity context){
         this.context = context;
     }
@@ -84,6 +86,5 @@ public class MyIn4WindowAdapter implements GoogleMap.InfoWindowAdapter {
     public View getInfoContents(@NonNull Marker marker) {
         return null;
     }
-
 
 }

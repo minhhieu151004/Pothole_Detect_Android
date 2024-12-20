@@ -23,8 +23,11 @@ import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
+import retrofit2.http.PUT;
+import retrofit2.http.Path;
 
 public interface API_Pothole {
     String token = "Bearer "+MyUserToken.token;
@@ -46,7 +49,7 @@ public interface API_Pothole {
             .create();
 
     API_Pothole api_pothole= new Retrofit.Builder()
-            .baseUrl("https://detectpothole.vercel.app/")
+            .baseUrl("https://api-detect-pothole-app.onrender.com/")
             .addConverterFactory(GsonConverterFactory.create(gson))
             .client(okBuilder.build())
             .build()
@@ -57,4 +60,10 @@ public interface API_Pothole {
 
     @GET("v1/pothole")
     Call<List<MyMarker>> get_all_pothole();
+
+    @DELETE("v1/pothole/delete/{id}")
+    Call<Void> delete_pothole(@Path("id") String id);
+
+    @PUT("v1/pothole/update/{id}")
+    Call<MyMarker> update_pothole(@Path("id") String id,@Body MyMarker marker);
 }

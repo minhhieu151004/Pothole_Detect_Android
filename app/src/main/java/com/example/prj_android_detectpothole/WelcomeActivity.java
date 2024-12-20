@@ -28,33 +28,40 @@ public class WelcomeActivity extends AppCompatActivity {
         }
 
         // Navigate to LoginActivity
-        button_login = findViewById(R.id.button_login);
-        button_login.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d(TAG, "Login button clicked");
-                try {
-                    startActivity(new Intent(WelcomeActivity.this, LoginActivity.class));
-                } catch (Exception e) {
-                    Log.e(TAG, "Error starting LoginActivity: " + e.getMessage());
-                    e.printStackTrace();
-                }
-            }
-        });
+
 
         // Navigate to SignUpActivity
-        findViewById(R.id.button_signup).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(WelcomeActivity.this, SignUpActivity.class));
-            }
-        });
-        findViewById(R.id.forgot_password).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(WelcomeActivity.this, ForgotPassword1Activity.class));
-            }
-        });
+        try{
+            button_login = findViewById(R.id.button_login);
+            button_login.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Log.d(TAG, "Login button clicked");
+                    try {
+                        startActivity(new Intent(WelcomeActivity.this, LoginActivity.class));
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error starting LoginActivity: " + e.getMessage());
+                        e.printStackTrace();
+                    }
+                }
+            });
+            findViewById(R.id.button_signup).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    startActivity(new Intent(WelcomeActivity.this, SignUpActivity.class));
+                }
+            });
+            findViewById(R.id.forgot_password).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    startActivity(new Intent(WelcomeActivity.this, ForgotPassword1Activity.class));
+                }
+            });
+        }
+        catch (Exception exception){
+
+        }
+
     }
     private boolean isTokenValid() {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);

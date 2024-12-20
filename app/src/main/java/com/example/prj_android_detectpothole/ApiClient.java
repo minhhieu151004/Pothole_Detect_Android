@@ -9,10 +9,10 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 
 public class ApiClient {
-    private static final String LOGIN_URL = "https://detectpothole.vercel.app/v1/auth/login";
-    private static final String SIGNUP_URL = "https://detectpothole.vercel.app/v1/auth/register";
-    private static final String SENDPIN_URL = "https://detectpothole.vercel.app/v1/auth/sendPin";
-    private static final String RESETPASS_URL = "https://detectpothole.vercel.app/v1/auth/resetPassword";
+    private static final String LOGIN_URL = "https://api-detect-pothole-app.onrender.com/v1/auth/login";
+    private static final String SIGNUP_URL = "https://api-detect-pothole-app.onrender.com/v1/auth/register";
+    private static final String SENDPIN_URL = "https://api-detect-pothole-app.onrender.com/v1/auth/sendPin";
+    private static final String RESETPASS_URL = "https://api-detect-pothole-app.onrender.com/v1/auth/resetPassword";
     private OkHttpClient client;
 
     public ApiClient() {
