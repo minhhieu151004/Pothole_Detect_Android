@@ -1,0 +1,71 @@
+<resources>
+    <string name="app_name">PRJ_Android_DetectPothole</string>
+    <string name="API_KEY_MAP">AIzaSyBmA13NoLEK1oiDWoshS310QUBZrkJqekw</string>
+    <string name="GEOAPIFY_KEY">f7962c9506cc461884d044f6e86d3b2b</string>
+    <string name="channel_name">Kênh ổ gà gần bạn</string>
+    <string name="channel_description">Có một ổ gà gần bạn</string>
+    <string name="hello_blank_fragment">Xin chào blank fragment</string>
+    <string name="map">Bản đồ</string>
+    <string name="dashboard">Bảng điều khiển</string>
+    <string name="setting">Cài đặt</string>
+    <string name="desc_img_profile">Hình ảnh hồ sơ người dùng</string>
+    <string name="setting_title">CÀI ĐẶT</string>
+    <string name="account">Tài khoản</string>
+    <string name="change_password">Thay đổi mật khẩu</string>
+    <string name="edit_profile">Chỉnh sửa hồ sơ</string>
+    <string name="notification">Thông báo</string>
+    <string name="other">Cài đặt khác</string>
+    <string name="dark_mode">Chế độ tối</string>
+    <string name="language">Ngôn ngữ</string>
+    <string name="update">Cập nhật</string>
+    <string name="current_password">Mật khẩu hiện tại</string>
+    <string name="wrong_password">Sai mật khẩu!!!!</string>
+    <string name="next">Tiếp theo</string>
+    <string name="new_password">Mật khẩu mới</string>
+    <string name="confirm_new_password">Xác nhận mật khẩu mới</string>
+    <string name="ok">OK</string>
+    <string-array name="pothole_level">
+        <item>CAO</item>
+        <item>TRUNG BÌNH</item>
+        <item>THẤP</item>
+    </string-array>
+    <string-array name="languages">
+        <item>Mục 1</item>
+    </string-array>
+    <string name="forgot_password"><u>Quên mật khẩu</u></string>
+    <string name="text_or"><u>HOẶC</u></string>
+    <string name="log_in">Đăng nhập</string>
+    <string name="sign_up">Đăng ký</string>
+    <string name="continue_with_google">Tiếp tục với Google</string>
+    <string name="don_t_have_an_account">Không có tài khoản?</string>
+    <string name="welcome">CHÀO MỪNG !</string>
+    <string name="login_to_get_started">Đăng nhập để bắt đầu</string>
+    <string name="password">Mật khẩu</string>
+    <string name="username">Tên người dùng</string>
+    <string name="remember_me">Nhớ mật khẩu</string>
+    <string name="email">Email</string>
+    <string name="confirm_password">Xác nhận mật khẩu</string>
+    <string name="send_code">Gửi mã</string>
+    <string name="forgot_password_get_started">Bắt đầu quên mật khẩu</string>
+    <string name="verify">Xác minh</string>
+    <string name="reset_password">Đặt lại mật khẩu</string>
+    <string name="log_out">Đăng xuất</string>
+    <string name="confirm_password_invalid">Xác nhận mật khẩu không hợp lệ</string>
+    <string name="low">Nhẹ</string>
+    <string name="medium">Trung bình</string>
+    <string name="high">Nguy hiểm</string>
+    <string name="date">Ngày tháng</string>
+    <string name="level">Mức độ</string>
+    <string name="picture">Ảnh</string>
+    <string name="cancel">Hủy</string>
+    <string name="submit">Đăng</string>
+    <string name="delete">Xóa</string>
+    <string name="serch_potholes">Tìm kiếm ổ gà</string>
+    <string name="arragne">Sắp xếp</string>
+    <string name="recently">Gần đây</string>
+    <string name="around">Quanh đây</string>
+    <string name="potholes">Ổ gà</string>
+    <string name="add">Thêm</string>
+    <string name="select_location_on_map">Chọn vị trí</string>
+    <string name="search">Tìm kiếm</string>
+</resources>

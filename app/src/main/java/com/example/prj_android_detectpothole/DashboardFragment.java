@@ -134,22 +134,6 @@ public class DashboardFragment extends Fragment {
         email.setText(emailValue);
     }
 
-    // Hiển thị SplashScreen
-    private void showSplashScreen() {
-        splashDialog = new Dialog(requireContext());
-        splashDialog.setContentView(R.layout.activity_splash); // Dùng layout của SplashActivity
-        splashDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        splashDialog.setCancelable(false); // Không cho phép đóng khi chờ dữ liệu
-        splashDialog.show();
-    }
-
-    // Ẩn SplashScreen
-    private void hideSplashScreen() {
-        if (splashDialog != null && splashDialog.isShowing()) {
-            splashDialog.dismiss();
-        }
-    }
-
     public void getMyPotholes() {
         List<MyMarker> myMarkerList = new ArrayList<>();
         List<MyMarker> lowList = new ArrayList<>();
@@ -160,7 +144,6 @@ public class DashboardFragment extends Fragment {
         API_Pothole.api_pothole.get_all_pothole().enqueue(new Callback<List<MyMarker>>() {
             @Override
             public void onResponse(Call<List<MyMarker>> call, Response<List<MyMarker>> response) {
-                showSplashScreen();
                 List<MyMarker> list = response.body();
                 if(list!=null && !list.isEmpty()){
                     for (MyMarker myMarker : list) {
@@ -193,13 +176,11 @@ public class DashboardFragment extends Fragment {
                     CreatePieChart(lowList, mediumList, highList);
 
                 }
-                hideSplashScreen();
             }
 
             @Override
             public void onFailure(Call<List<MyMarker>> call, Throwable throwable) {
                 Log.e(TAG,"Fail to get Potholes: " + throwable.getMessage());
-                hideSplashScreen();
             }
         });
     }
@@ -212,7 +193,6 @@ public class DashboardFragment extends Fragment {
         API_Pothole.api_pothole.get_all_pothole().enqueue(new Callback<List<MyMarker>>() {
             @Override
             public void onResponse(Call<List<MyMarker>> call, Response<List<MyMarker>> response) {
-                showSplashScreen();
                 List<MyMarker> list = response.body();
                 if(list!=null && !list.isEmpty()){
                     for (MyMarker myMarker : list) {
@@ -243,13 +223,11 @@ public class DashboardFragment extends Fragment {
                     CreatePieChart(lowList, mediumList, highList);
 
                 }
-                hideSplashScreen();
             }
 
             @Override
             public void onFailure(Call<List<MyMarker>> call, Throwable throwable) {
                 Log.e(TAG,"Fail to get Potholes: " + throwable.getMessage());
-                hideSplashScreen();
             }
         });
     }

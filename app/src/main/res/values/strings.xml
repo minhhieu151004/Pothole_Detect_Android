@@ -52,5 +52,22 @@
     <string name="reset_password">Reset password</string>
     <string name="log_out">Log out</string>
     <string name="confirm_password_invalid">Confirm Password invalid</string>
+    <string name="low">Low</string>
+    <string name="medium">Medium</string>
+    <string name="high">High</string>
+    <string name="date">Date</string>
+    <string name="level">Level</string>
+    <string name="picture">Picture</string>
+    <string name="cancel">Cancel</string>
+    <string name="submit">Submit</string>
+    <string name="delete">Delete</string>
+    <string name="serch_potholes">Serch potholes</string>
+    <string name="arragne">Arragne</string>
+    <string name="recently">Recently</string>
+    <string name="around">Around</string>
+    <string name="potholes">Potholes</string>
+    <string name="add">Add</string>
+    <string name="select_location_on_map">Select location on map</string>
+    <string name="search">Search</string>
 
 </resources>
