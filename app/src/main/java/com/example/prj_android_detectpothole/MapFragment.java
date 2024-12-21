@@ -1,5 +1,7 @@
 package com.example.prj_android_detectpothole;
 
+import static androidx.core.content.ContextCompat.getSystemService;
+
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -16,12 +18,16 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.hardware.Sensor;
+import android.hardware.SensorManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
@@ -60,6 +66,8 @@ import androidx.fragment.app.Fragment;
 
 import com.example.prj_android_detectpothole.API.API_Pothole;
 import com.example.prj_android_detectpothole.API.API_Routing;
+import com.example.prj_android_detectpothole.MODEL.AccelerometerListener;
+import com.example.prj_android_detectpothole.MODEL.GPSListener;
 import com.example.prj_android_detectpothole.MODEL.MyApplication;
 import com.example.prj_android_detectpothole.MODEL.MyRouting;
 import com.example.prj_android_detectpothole.MODEL.WebSocketManager;
@@ -95,6 +103,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -189,6 +199,19 @@ public class MapFragment extends Fragment implements
             }
         }
     };
+
+    AtomicBoolean currentlyRecording = new AtomicBoolean();
+    SensorManager sensorManager;
+    Sensor accelerometer;
+    AccelerometerListener accelerometerListener;
+    LocationManager locationManager;
+    GPSListener gpsListener;
+    StringBuilder currentCsv;
+    long startTime;
+    double avg_accel, std_accel, max_accel, last_speed, curr_speed, last_time, curr_time = 0;
+    double delta_v, delta_t, giatoc;
+    int loopId = 0;
+
     void findID(View view) {
         btn_Show_Pothole = view.findViewById(R.id.btn_show_pothole);
         btn_Add_Pothole = view.findViewById(R.id.btn_add_pothole);
@@ -210,6 +233,10 @@ public class MapFragment extends Fragment implements
         btn_cancel_routing.setVisibility(View.GONE);
         btn_change_route.setVisibility(View.GONE);
         listMyMark = new ArrayList<>();
+
+        sensorManager = (SensorManager) getContext().getSystemService(Context.SENSOR_SERVICE);
+        accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
+        locationManager = (LocationManager) getContext().getSystemService(Context.LOCATION_SERVICE);
     }
 
     @Nullable
@@ -228,7 +255,11 @@ public class MapFragment extends Fragment implements
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         httpClient = new OkHttpClient();
         myWebSocketManager = new WebSocketManager();
-        //startWebSocket();
+
+        accelerometerListener = new AccelerometerListener();
+        sensorManager.registerListener(accelerometerListener, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+        gpsListener = new GPSListener();
+
         //Event Button click
         btn_Show_Pothole.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -359,6 +390,7 @@ public class MapFragment extends Fragment implements
     public void onStart() {
         super.onStart();
         GetAllPotholes();
+        startRecording();
     }
 
     @Override
@@ -519,6 +551,7 @@ public class MapFragment extends Fragment implements
             map.setMyLocationEnabled(true);
             zoomToUserLocation();
             CheckSettingAndStartLocationUpdates();
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 500, 0, gpsListener);
             return;
         }
         ActivityCompat.requestPermissions(getActivity(),new String[] {
@@ -659,7 +692,7 @@ public class MapFragment extends Fragment implements
                     String addr = getAddressFromLatLng(lat,lon);
                     String img = "https://st3.depositphotos.com/1005979/18725/i/1600/depositphotos_187252966-stock-photo-potholes-ahead-danger-warning-sign.jpg";
                     MyMarker mMarker = new MyMarker("1",lat,lon,addr,level,usernameValue,img);
-                    PostPothole(mMarker);
+                    PostPothole(mMarker,"ADD");
                 }
                 dialog.dismiss();
                 ViewVISIBLE();
@@ -996,6 +1029,22 @@ public class MapFragment extends Fragment implements
         }
 
     }
+    private void SendNotificationDetectPothole(MyMarker myMarker){
+        Notification notification = new NotificationCompat.Builder(getActivity(), MyApplication.CHANNEL_ID)
+                .setContentTitle("DETECT POTHOLE!!!")
+                .setContentText("Address: "+myMarker.getAddr())
+                .setSmallIcon(R.drawable.pothole)
+                .build();
+
+        NotificationManager notificationManager = (NotificationManager) requireContext().getSystemService(Context.NOTIFICATION_SERVICE);
+        if(notificationManager!=null){
+            notificationManager.notify(GetNotificationID(),notification);
+            Log.d(TAG,"onSendNotificationNearPothole: ");
+        }
+        else {
+            Log.d(TAG,"onSendNotificationNearPothole: null notificationManager");
+        }
+    }
     private int GetNotificationID(){
         return (int) new Date().getTime();
     }
@@ -1027,15 +1076,15 @@ public class MapFragment extends Fragment implements
         }
 
     }
-    private void PostPothole(MyMarker marker){
+    private void PostPothole(MyMarker marker, String mode){
         API_Pothole.api_pothole.post_pothole(marker).enqueue(new Callback<MyMarker>() {
             @Override
             public void onResponse(Call<MyMarker> call, Response<MyMarker> response) {
                 MyMarker responseMarker = response.body();
                 if(responseMarker != null){
-                    if (mark != null) {
-                        String img = "https://st3.depositphotos.com/1005979/18725/i/1600/depositphotos_187252966-stock-photo-potholes-ahead-danger-warning-sign.jpg";
-                        responseMarker.setImg(img);
+                    String img = "https://st3.depositphotos.com/1005979/18725/i/1600/depositphotos_187252966-stock-photo-potholes-ahead-danger-warning-sign.jpg";
+                    responseMarker.setImg(img);
+                    if (mark != null && Objects.equals(mode, "ADD")) {
                         mark.setTag(responseMarker);
                         switch (responseMarker.getLevel()) {
                             case "HIGH":
@@ -1050,6 +1099,23 @@ public class MapFragment extends Fragment implements
                         }
                         listMyMark.add(mark);
                         Toast.makeText(getActivity(), "Submit successfully!", Toast.LENGTH_SHORT).show();
+                    } else if (Objects.equals(mode, "DETECT")) {
+                        LatLng pos = new LatLng(responseMarker.getLatitude(),responseMarker.getLongitude());
+                        Marker potholeMark = map.addMarker(new MarkerOptions().position(pos));
+                        potholeMark.setTag(responseMarker);
+                        switch (responseMarker.getLevel()) {
+                            case "HIGH":
+                                potholeMark.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.error));
+                                break;
+                            case "MEDIUM":
+                                potholeMark.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.warning));
+                                break;
+                            case "LOW":
+                                potholeMark.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.info));
+                                break;
+                        }
+                        listMyMark.add(potholeMark);
+                        Log.d(TAG, "onResponse: DETECT pothole");
                     }
                 }
             }
@@ -1217,5 +1283,71 @@ public class MapFragment extends Fragment implements
         double latitude = latLng.latitude;
         double longitude = latLng.longitude;
         return latitude >= -90 && latitude <= 90 && longitude >= -180 && longitude <= 180;
+    }
+
+    private void startRecording() {
+        last_speed = curr_speed = last_time = curr_time = loopId = 0;
+        performRecording();
+    }
+    private void performRecording(){
+        setUpRecording();
+        //here's android's version of a loop with a sleep
+        final Handler handler = new Handler();
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                processLoop();
+                if(currentlyRecording.get()){
+                    handler.postDelayed(this, 1000l);  // 1 second delay
+                }
+                else{
+                    //finishRecording();
+                }
+
+            }
+        };
+        handler.post(runnable);
+    }
+    private void setUpRecording(){
+        currentCsv = new StringBuilder();
+        currentlyRecording.set(true);
+        startTime=System.currentTimeMillis();
+    }
+    private void processLoop(){
+        double[] avgStdMax = accelerometerListener.getAvgStdMax();
+        avg_accel = avgStdMax[0];
+        std_accel = avgStdMax[1];
+        max_accel = avgStdMax[2];
+        last_speed = curr_speed;
+        curr_speed = gpsListener.speed;
+        last_time = curr_time;
+        curr_time = (System.currentTimeMillis()-startTime)/1000d;
+        delta_v = curr_speed - last_speed;
+        delta_t = curr_time - last_time;
+        giatoc = Math.abs(delta_v/delta_t);
+        if(loopId == 0){
+            delta_t = delta_v = giatoc = 0;
+        }
+        loopId++;
+
+        if(std_accel>2 && max_accel>15 && curr_speed>7 && giatoc<0.5){
+            //POST a pothole
+            double lat = gpsListener.latitude;
+            double lon = gpsListener.longitude;
+            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext());
+            String usernameValue = sharedPreferences.getString("username", "");
+            String addr = getAddressFromLatLng(lat,lon);
+            String level = "MEDIUM";
+            if(max_accel>25) level = "HIGH";
+            MyMarker mMarker = new MyMarker("1",lat,lon,addr,level,usernameValue,"img");
+            try {
+                SendNotificationDetectPothole(mMarker);
+                PostPothole(mMarker,"DETECT");
+                Log.e(TAG, "processLoop: HAVE A POTHOLE!" );
+            }
+            catch (Exception e){
+                Log.e(TAG, "processLoop: " + e.getMessage() );
+            }
+        }
     }
 }
