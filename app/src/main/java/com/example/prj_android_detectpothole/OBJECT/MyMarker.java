@@ -11,17 +11,20 @@ public class MyMarker {
     double latitude, longitude;
     @SerializedName("street")
     String addr;
+    String contributor;
     String img;
 
-    public MyMarker(String idMark, double latitude, double longitude, String addr, String level, String img) {
+    public MyMarker(String idMark, double latitude, double longitude, String addr, String level, String contributor,String img) {
         this.idMark = idMark;
         this.latitude = latitude;
         this.longitude = longitude;
         this.addr = addr;
         this.level = level;
+        this.contributor = contributor;
         this.img = img;
     }
 
+    public String getContributor() { return  contributor;}
     public String getImg() {
         return img;
     }

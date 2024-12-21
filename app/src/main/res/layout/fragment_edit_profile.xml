@@ -64,6 +64,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
                 <EditText
+                    android:id="@+id/update_user_input"
                     android:paddingBottom="10dp"
                     android:inputType="text"
                     android:textSize="16sp"

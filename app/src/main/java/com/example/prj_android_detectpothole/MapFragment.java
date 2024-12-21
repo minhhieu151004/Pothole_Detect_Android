@@ -10,6 +10,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -22,6 +23,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
+import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.util.Base64;
 import android.util.Log;
@@ -652,9 +654,11 @@ public class MapFragment extends Fragment implements
                 if (mark != null) {
                     double lat = mark.getPosition().latitude;
                     double lon = mark.getPosition().longitude;
+                    SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext());
+                    String usernameValue = sharedPreferences.getString("username", "");
                     String addr = getAddressFromLatLng(lat,lon);
                     String img = "https://st3.depositphotos.com/1005979/18725/i/1600/depositphotos_187252966-stock-photo-potholes-ahead-danger-warning-sign.jpg";
-                    MyMarker mMarker = new MyMarker("1",lat,lon,addr,level,img);
+                    MyMarker mMarker = new MyMarker("1",lat,lon,addr,level,usernameValue,img);
                     PostPothole(mMarker);
                 }
                 dialog.dismiss();

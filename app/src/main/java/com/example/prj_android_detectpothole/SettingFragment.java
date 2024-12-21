@@ -73,8 +73,7 @@ public class SettingFragment extends Fragment {
     public void LogOut() {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext());
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.remove("accessToken");
-        editor.remove("expireTime");
+        editor.clear();
         editor.apply();
 
         Intent intent = new Intent(requireContext(), WelcomeActivity.class);

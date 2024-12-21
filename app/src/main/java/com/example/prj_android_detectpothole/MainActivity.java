@@ -72,11 +72,12 @@ public class MainActivity extends AppCompatActivity {
 
         if(!fragment.isAdded()) {
             fragmentTransaction.add(R.id.main_fragment, fragment);
+            fragmentTransaction.addToBackStack(null);
         }
 
         for (Fragment f : fragmentManager.getFragments()) {
             if (f!=fragment) {
-                fragmentTransaction.hide(f);
+                fragmentTransaction.remove(f);
             }
         }
 
