@@ -1,10 +1,15 @@
 package com.example.prj_android_detectpothole;
 
 import android.annotation.SuppressLint;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -17,16 +22,20 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.Spinner;
+import android.widget.Switch;
 
 import com.example.prj_android_detectpothole.language.data;
 import com.example.prj_android_detectpothole.language.language;
 
+import java.util.List;
 import java.util.Locale;
 
 public class SettingFragment extends Fragment {
     private Spinner spinner_language;
     private LanguageSpinnerAdapter languageAdapter;
     private Button editProfileBtn, changePasswordBtn, logOutBtn;
+
+    private Switch notifySwitch;
 
     private final AdapterView.OnItemSelectedListener languageChangeListener = new AdapterView.OnItemSelectedListener() {
         @Override
@@ -36,8 +45,7 @@ public class SettingFragment extends Fragment {
             String currentLanguage = sharedPreferences.getString("selected_language", "en");
 
             if (!selectedLanguage.equals(currentLanguage)) {
-                setLocale(selectedLanguage); // Chỉ thay đổi nếu ngôn ngữ mới khác ngôn ngữ hiện tại
-                // Lưu ngôn ngữ đã chọn
+                setLocale(selectedLanguage);
                 SharedPreferences.Editor editor = sharedPreferences.edit();
                 editor.putString("selected_language", selectedLanguage);
                 editor.apply();
@@ -60,6 +68,7 @@ public class SettingFragment extends Fragment {
 
         editProfileBtn = view.findViewById(R.id.edit_profile_btn);
         changePasswordBtn = view.findViewById(R.id.change_password_btn);
+        notifySwitch = view.findViewById(R.id.notify_switch);
 
         loadSavedLanguage();
 
@@ -98,6 +107,20 @@ public class SettingFragment extends Fragment {
             }
         });
 
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext());
+        boolean isNotificationEnabled = sharedPreferences.getBoolean("notification_enabled", true);
+
+        notifySwitch.setChecked(isNotificationEnabled);
+        notifySwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            sharedPreferences.edit().putBoolean("notification_enabled", isChecked).apply();
+
+            if (isChecked) {
+                disableNotification();
+            } else {
+                enableNotification();
+            }
+        });
+
         return view;
     }
 
@@ -121,7 +144,6 @@ public class SettingFragment extends Fragment {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext());
         String currentLanguage = sharedPreferences.getString("selected_language", "en");
 
-        // Chỉ thay đổi nếu ngôn ngữ mới khác ngôn ngữ hiện tại
         if (!currentLanguage.equals(langCode)) {
             Locale locale = new Locale(langCode);
             Locale.setDefault(locale);
@@ -137,7 +159,6 @@ public class SettingFragment extends Fragment {
             editor.putString("selected_language", langCode);
             editor.apply();
 
-            // Làm mới Activity để áp dụng ngôn ngữ mới
             requireActivity().recreate();
 
         }
@@ -147,13 +168,11 @@ public class SettingFragment extends Fragment {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext());
         String savedLanguage = sharedPreferences.getString("selected_language", "en"); // "en" là mặc định nếu không có ngôn ngữ nào được lưu
 
-        // Kiểm tra nếu ngôn ngữ lưu trong SharedPreferences khác với ngôn ngữ hiện tại
         Locale currentLocale = requireContext().getResources().getConfiguration().locale;
         if (!currentLocale.getLanguage().equals(savedLanguage)) {
             setLocale(savedLanguage);
         }
 
-        // Cập nhật vị trí `Spinner` theo ngôn ngữ đã lưu
         spinner_language.setOnItemSelectedListener(null); // Tạm thời tắt listener
         for (int i = 0; i < data.getLanguageList().size(); i++) {
             if (data.getLanguageList().get(i).getLanguageCode().equals(savedLanguage)) {
@@ -162,5 +181,30 @@ public class SettingFragment extends Fragment {
             }
         }
         spinner_language.setOnItemSelectedListener(languageChangeListener); // Kích hoạt lại listener
+    }
+
+    //Notification helper
+    private void disableNotification () {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationManager notificationManager = (NotificationManager) getContext().getSystemService(Context.NOTIFICATION_SERVICE);
+            List<NotificationChannel> notifications = notificationManager.getNotificationChannels();
+            for (NotificationChannel channel: notifications) {
+                channel.setImportance(NotificationManager.IMPORTANCE_NONE);
+                notificationManager.createNotificationChannel(channel);
+            }
+
+        }
+    }
+
+    private void enableNotification () {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationManager notificationManager = (NotificationManager) getContext().getSystemService(Context.NOTIFICATION_SERVICE);
+            List<NotificationChannel> notifications = notificationManager.getNotificationChannels();
+            for (NotificationChannel channel: notifications) {
+                channel.setImportance(NotificationManager.IMPORTANCE_HIGH);
+                notificationManager.createNotificationChannel(channel);
+            }
+
+        }
     }
 }

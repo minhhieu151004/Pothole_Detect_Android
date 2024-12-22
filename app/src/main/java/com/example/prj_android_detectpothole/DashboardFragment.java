@@ -66,7 +66,6 @@ public class DashboardFragment extends Fragment {
     Switch modeViewSwitch;
     PieChart pieChart;
     TextView username, email, totalPotholes, lowPotholes, mediumPotholes, highPotholes;
-    Dialog splashDialog;
 
 
     @SuppressLint({"MissingInflatedId", "WrongViewCast"})
