@@ -19,6 +19,7 @@ import android.widget.Button;
 import android.widget.Spinner;
 
 import com.example.prj_android_detectpothole.language.data;
+import com.example.prj_android_detectpothole.language.language;
 
 import java.util.Locale;
 
@@ -36,6 +37,10 @@ public class SettingFragment extends Fragment {
 
             if (!selectedLanguage.equals(currentLanguage)) {
                 setLocale(selectedLanguage); // Chỉ thay đổi nếu ngôn ngữ mới khác ngôn ngữ hiện tại
+                // Lưu ngôn ngữ đã chọn
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putString("selected_language", selectedLanguage);
+                editor.apply();
             }
         }
 
@@ -99,7 +104,12 @@ public class SettingFragment extends Fragment {
     public void LogOut() {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext());
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.clear();
+
+        editor.remove("id");
+        editor.remove("username");
+        editor.remove("email");
+        editor.remove("accessToken");
+
         editor.apply();
 
         Intent intent = new Intent(requireContext(), WelcomeActivity.class);
