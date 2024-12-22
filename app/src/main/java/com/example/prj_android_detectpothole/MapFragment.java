@@ -1,5 +1,6 @@
 package com.example.prj_android_detectpothole;
 
+import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 import static androidx.core.content.ContextCompat.getSystemService;
 
 import android.Manifest;
@@ -69,6 +70,7 @@ import com.example.prj_android_detectpothole.API.API_Routing;
 import com.example.prj_android_detectpothole.MODEL.AccelerometerListener;
 import com.example.prj_android_detectpothole.MODEL.GPSListener;
 import com.example.prj_android_detectpothole.MODEL.MyApplication;
+import com.example.prj_android_detectpothole.MODEL.MyBroadcastReceiver;
 import com.example.prj_android_detectpothole.MODEL.MyRouting;
 import com.example.prj_android_detectpothole.MODEL.WebSocketManager;
 import com.example.prj_android_detectpothole.OBJECT.MyMarker;
@@ -96,9 +98,12 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -174,6 +179,7 @@ public class MapFragment extends Fragment implements
     LocationRequest locationRequest;
     OkHttpClient httpClient;
     WebSocketManager myWebSocketManager;
+    MyBroadcastReceiver myBroadcastReceiver;
     LocationCallback locationCallback = new LocationCallback() {
         @Override
         public void onLocationResult(@NonNull LocationResult locationResult) {
@@ -255,7 +261,7 @@ public class MapFragment extends Fragment implements
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         httpClient = new OkHttpClient();
         myWebSocketManager = new WebSocketManager();
-
+        myBroadcastReceiver = new MyBroadcastReceiver();
         accelerometerListener = new AccelerometerListener();
         sensorManager.registerListener(accelerometerListener, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
         gpsListener = new GPSListener();
@@ -270,6 +276,10 @@ public class MapFragment extends Fragment implements
         btn_Add_Pothole.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if(!myBroadcastReceiver.isNetworkAvailable(getContext())){
+                    Toast.makeText(getContext(), "No Internet!", Toast.LENGTH_SHORT).show();;
+                    return;
+                }
                 ViewGONE();
                 isAddPotholeMode = true;
                 LatLng center = map.getCameraPosition().target;
@@ -306,6 +316,11 @@ public class MapFragment extends Fragment implements
                 if (keyCode == KeyEvent.KEYCODE_ENTER && keyEvent.getAction() == KeyEvent.ACTION_DOWN) {
                     String address = edt_Serch.getText().toString().trim();
                     String addrKey = address.replace(' ','+');
+                    if(!myBroadcastReceiver.isNetworkAvailable(getContext())){
+                        edt_Serch.setText("");
+                        Toast.makeText(getContext(), "No Internet!", Toast.LENGTH_SHORT).show();;
+                        return true;
+                    }
 
                     if (!address.isEmpty()) {
                         LatLng latLng = getLatLngFromAddress(address);
@@ -333,12 +348,15 @@ public class MapFragment extends Fragment implements
         btn_direction.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if(!myBroadcastReceiver.isNetworkAvailable(getContext())){
+                    Toast.makeText(getContext(), "No Internet!", Toast.LENGTH_SHORT).show();;
+                    return;
+                }
                 if(current_marker!=null){
                     isDirectionMode = true;
                     isAvoidPotholeMode=false;
                     PlayRoute(1);
                 }
-                else Toast.makeText(getActivity(), "Current = null", Toast.LENGTH_SHORT).show();
             }
         });
         btn_cancel_routing.setOnClickListener(new View.OnClickListener() {
@@ -374,12 +392,20 @@ public class MapFragment extends Fragment implements
         btn_delete_pothole.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if(!myBroadcastReceiver.isNetworkAvailable(getContext())){
+                    Toast.makeText(getContext(), "No Internet!", Toast.LENGTH_SHORT).show();;
+                    return;
+                }
                 openDialogDeletePothole();
             }
         });
         btn_update_pothole.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if(!myBroadcastReceiver.isNetworkAvailable(getContext())){
+                    Toast.makeText(getContext(), "No Internet!", Toast.LENGTH_SHORT).show();;
+                    return;
+                }
                 openDialogUpdatePothole();
             }
         });
@@ -443,6 +469,10 @@ public class MapFragment extends Fragment implements
                 btn_delete_pothole.setVisibility(View.GONE);
             }
         });
+        if(!myBroadcastReceiver.isNetworkAvailable(getContext())){
+            GetAllPotholesFromLocalStorage();
+            return;
+        }
     }
 
     @Override
@@ -1131,6 +1161,10 @@ public class MapFragment extends Fragment implements
         });
     }
     private void GetAllPotholes(){
+        if(!myBroadcastReceiver.isNetworkAvailable(getContext())){
+            //GetAllPotholesFromLocalStorage();
+            return;
+        }
         API_Pothole.api_pothole.get_all_pothole().enqueue(new Callback<List<MyMarker>>() {
             @Override
             public void onResponse(Call<List<MyMarker>> call, Response<List<MyMarker>> response) {
@@ -1170,6 +1204,40 @@ public class MapFragment extends Fragment implements
                 Log.e(TAG,"Fail to get Potholes: " + throwable.getMessage());
             }
         });
+    }
+    private  void GetAllPotholesFromLocalStorage(){
+        List<MyMarker> listpothole = new ArrayList<>();
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext());
+        String jsonListPothole = sharedPreferences.getString("ListPothole", null);
+        if (jsonListPothole != null) {
+            Gson gson = new Gson();
+            Type type = new TypeToken<List<MyMarker>>() {}.getType();
+            listpothole = gson.fromJson(jsonListPothole, type);
+            if(listpothole != null && !listpothole.isEmpty()) {
+                for (MyMarker myMarker : listpothole) {
+                    try{
+                        LatLng latLng = new LatLng(myMarker.getLatitude(),myMarker.getLongitude());
+                        Marker marker = map.addMarker(new MarkerOptions().position(latLng));
+                        marker.setTag(myMarker);
+                        switch (myMarker.getLevel()) {
+                            case "HIGH":
+                                marker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.error));
+                                break;
+                            case "MEDIUM":
+                                marker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.warning));
+                                break;
+                            case "LOW":
+                                marker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.info));
+                                break;
+                        }
+                    }
+                    catch (Exception e){
+                        Log.e(TAG, "PotholesFromLocalStorageError: " + e.getMessage());
+                    }
+                }
+
+            }
+        }
     }
     boolean delete_result = false;
     private void DeletePothole(String id){

@@ -1,12 +1,14 @@
 package com.example.prj_android_detectpothole;
 
 import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
+import static androidx.core.content.ContextCompat.registerReceiver;
 
 import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -31,6 +33,8 @@ import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import com.example.prj_android_detectpothole.API.API_Pothole;
+import com.example.prj_android_detectpothole.MODEL.MyBroadcastReceiver;
+import com.example.prj_android_detectpothole.MODEL.MyJsonConvert;
 import com.example.prj_android_detectpothole.OBJECT.MyMarker;
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.LineChart;
@@ -49,7 +53,10 @@ import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
 import com.github.mikephil.charting.formatter.ValueFormatter;
 import com.github.mikephil.charting.utils.ColorTemplate;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -67,6 +74,7 @@ public class DashboardFragment extends Fragment {
     PieChart pieChart;
     TextView username, email, totalPotholes, lowPotholes, mediumPotholes, highPotholes;
 
+    MyBroadcastReceiver myBroadcastReceiver;
 
     @SuppressLint({"MissingInflatedId", "WrongViewCast"})
     @Override
@@ -81,6 +89,8 @@ public class DashboardFragment extends Fragment {
         highPotholes = view.findViewById(R.id.high_potholes_txt);
         pieChart = view.findViewById(R.id.pieChart);
         modeViewSwitch = view.findViewById(R.id.switch_mode_view);
+
+        myBroadcastReceiver = new MyBroadcastReceiver();
 
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext());
         boolean isChecked = sharedPreferences.getBoolean("mode_view_switch", false);
@@ -134,6 +144,10 @@ public class DashboardFragment extends Fragment {
     }
 
     public void getMyPotholes() {
+        if(!myBroadcastReceiver.isNetworkAvailable(getContext())){
+            PieChartFromLocalStorage2();
+            return;
+        }
         List<MyMarker> myMarkerList = new ArrayList<>();
         List<MyMarker> lowList = new ArrayList<>();
         List<MyMarker> mediumList = new ArrayList<>();
@@ -185,14 +199,28 @@ public class DashboardFragment extends Fragment {
     }
 
     public void getAllPotholes(){
+        if(!myBroadcastReceiver.isNetworkAvailable(getContext())){
+            PieChartFromLocalStorage();
+            return;
+        }
         List<MyMarker> myMarkerList = new ArrayList<>();
         List<MyMarker> lowList = new ArrayList<>();
         List<MyMarker> mediumList = new ArrayList<>();
         List<MyMarker> highList = new ArrayList<>();
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext());
+        SharedPreferences.Editor editor = sharedPreferences.edit();
         API_Pothole.api_pothole.get_all_pothole().enqueue(new Callback<List<MyMarker>>() {
             @Override
             public void onResponse(Call<List<MyMarker>> call, Response<List<MyMarker>> response) {
                 List<MyMarker> list = response.body();
+                try{
+                    String jsonListPothole = MyJsonConvert.listToJson(list);
+                    editor.putString("ListPothole", jsonListPothole);
+                    editor.apply();
+                }
+                catch (Exception e){
+                    Log.e(TAG, "jsonconvert error: " + e.getMessage());
+                }
                 if(list!=null && !list.isEmpty()){
                     for (MyMarker myMarker : list) {
                         try {
@@ -266,5 +294,89 @@ public class DashboardFragment extends Fragment {
         pieChart.invalidate();
     }
 
-
+    private void PieChartFromLocalStorage(){
+        List<MyMarker> listpothole = new ArrayList<>();
+        List<MyMarker> lowList = new ArrayList<>();
+        List<MyMarker> mediumList = new ArrayList<>();
+        List<MyMarker> highList = new ArrayList<>();
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext());
+        String jsonListPothole = sharedPreferences.getString("ListPothole", null);
+        if (jsonListPothole != null) {
+            Gson gson = new Gson();
+            Type type = new TypeToken<List<MyMarker>>() {}.getType();
+            listpothole = gson.fromJson(jsonListPothole, type);
+            if(listpothole != null && !listpothole.isEmpty()) {
+                for (MyMarker myMarker : listpothole) {
+                    try {
+                        switch (myMarker.getLevel()) {
+                            case "LOW":
+                                lowList.add(myMarker);
+                                break;
+                            case "MEDIUM":
+                                mediumList.add(myMarker);
+                                break;
+                            case "HIGH":
+                                highList.add(myMarker);
+                                break;
+                            default:
+                                Log.e(TAG, "Get pothole error: " + myMarker.getLevel());
+                                break;
+                        }
+                    } catch (Exception e) {
+                        Log.e(TAG, "Get pothole error: " + e.getMessage());
+                    }
+                }
+                lowPotholes.setText(String.valueOf(lowList.size()));
+                mediumPotholes.setText(String.valueOf(mediumList.size()));
+                highPotholes.setText(String.valueOf(highList.size()));
+                totalPotholes.setText(String.valueOf(listpothole.size()));
+                CreatePieChart(lowList, mediumList, highList);
+            }
+        }
+    }
+    private void PieChartFromLocalStorage2(){
+        List<MyMarker> listpothole = new ArrayList<>();
+        List<MyMarker> lowList = new ArrayList<>();
+        List<MyMarker> mediumList = new ArrayList<>();
+        List<MyMarker> highList = new ArrayList<>();
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext());
+        String usernameValue = sharedPreferences.getString("username", "");
+        String jsonListPothole = sharedPreferences.getString("ListPothole", null);
+        if (jsonListPothole != null) {
+            Gson gson = new Gson();
+            Type type = new TypeToken<List<MyMarker>>() {}.getType();
+            listpothole = gson.fromJson(jsonListPothole, type);
+            int i = 0;
+            if(listpothole != null && !listpothole.isEmpty()) {
+                for (MyMarker myMarker : listpothole) {
+                    try {
+                        if(myMarker.getContributor().equals(usernameValue)){
+                            i++;
+                            switch (myMarker.getLevel()) {
+                                case "LOW":
+                                    lowList.add(myMarker);
+                                    break;
+                                case "MEDIUM":
+                                    mediumList.add(myMarker);
+                                    break;
+                                case "HIGH":
+                                    highList.add(myMarker);
+                                    break;
+                                default:
+                                    Log.e(TAG, "Get pothole error: " + myMarker.getLevel());
+                                    break;
+                            }
+                        }
+                    } catch (Exception e) {
+                        Log.e(TAG, "Get pothole error: " + e.getMessage());
+                    }
+                }
+                lowPotholes.setText(String.valueOf(lowList.size()));
+                mediumPotholes.setText(String.valueOf(mediumList.size()));
+                highPotholes.setText(String.valueOf(highList.size()));
+                totalPotholes.setText("" + i);
+                CreatePieChart(lowList, mediumList, highList);
+            }
+        }
+    }
 }
