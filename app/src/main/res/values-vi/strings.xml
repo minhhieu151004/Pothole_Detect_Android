@@ -25,9 +25,9 @@
     <string name="confirm_new_password">Xác nhận mật khẩu mới</string>
     <string name="ok">OK</string>
     <string-array name="pothole_level">
-        <item>CAO</item>
+        <item>NGUY HIỂM</item>
         <item>TRUNG BÌNH</item>
-        <item>THẤP</item>
+        <item>NHẸ</item>
     </string-array>
     <string-array name="languages">
         <item>Mục 1</item>
@@ -52,8 +52,8 @@
     <string name="log_out">Đăng xuất</string>
     <string name="confirm_password_invalid">Xác nhận mật khẩu không hợp lệ</string>
     <string name="low">Nhẹ</string>
-    <string name="medium">Trung bình</string>
-    <string name="high">Nguy hiểm</string>
+    <string name="medium">Trung</string>
+    <string name="high">Nguy</string>
     <string name="date">Ngày tháng</string>
     <string name="level">Mức độ</string>
     <string name="picture">Ảnh</string>
