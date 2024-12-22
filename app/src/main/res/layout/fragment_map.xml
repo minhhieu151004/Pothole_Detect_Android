@@ -23,7 +23,7 @@
         android:layout_margin="20dp"
         android:background="@drawable/bground_white_border_gray"
         android:drawableRight="@drawable/find_icon"
-        android:hint="Search"
+        android:hint="@string/search"
         android:paddingLeft="20dp"
         android:paddingRight="20dp"
         android:imeOptions="actionSearch"
@@ -91,10 +91,10 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Select location on map"
+            android:text="@string/select_location_on_map"
             android:textSize="20dp"/>
         <Button
-            android:text="OK"
+            android:text="@string/ok"
             android:layout_weight="1"
             android:id="@+id/btn_ok"
             android:textSize="20dp"
@@ -118,7 +118,7 @@
         android:background="@drawable/conner_button"
         android:drawableLeft="@drawable/add_icon"
         android:paddingLeft="10dp"
-        android:text="Add"
+        android:text="@string/add"
         android:textColor="@color/white"
         android:textSize="10dp" />
 
@@ -156,7 +156,7 @@
         android:background="@drawable/conner_button"
         android:drawableLeft="@drawable/pothole"
         android:paddingLeft="10dp"
-        android:text="Potholes"
+        android:text="@string/potholes"
         android:textColor="@color/white"
         android:textSize="10dp" />
 

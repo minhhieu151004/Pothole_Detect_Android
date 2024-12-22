@@ -26,7 +26,7 @@
             android:layout_height="51dp"
             android:background="@drawable/bground_white_border_gray"
             android:drawableRight="@drawable/find_icon"
-            android:hint="Serch potholes"
+            android:hint="@string/serch_potholes"
             android:paddingLeft="20dp"
             android:paddingRight="20dp" />
 
@@ -41,7 +41,7 @@
                 android:layout_margin="5dp"
                 android:layout_weight="1"
                 android:background="@drawable/conner_button"
-                android:text="Arragne"
+                android:text="@string/arragne"
                 android:textColor="@color/white"
                 android:textSize="10dp"/>
 
@@ -51,7 +51,7 @@
                 android:layout_margin="5dp"
                 android:layout_weight="1"
                 android:background="@drawable/conner_button"
-                android:text="Recently"
+                android:text="@string/recently"
                 android:textColor="@color/white"
                 android:textSize="10dp"/>
 
@@ -61,7 +61,7 @@
                 android:layout_margin="5dp"
                 android:layout_weight="1"
                 android:background="@drawable/conner_button"
-                android:text="Around"
+                android:text="@string/around"
                 android:textColor="@color/white"
                 android:textSize="10dp"/>
 

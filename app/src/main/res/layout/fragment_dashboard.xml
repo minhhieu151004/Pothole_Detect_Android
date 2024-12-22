@@ -80,7 +80,7 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="Pothole"
+            android:text="@string/potholes"
             android:textStyle="bold|italic"
             android:textSize="18dp"
             android:gravity="center_vertical"/>
@@ -109,7 +109,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Low"
+                    android:text="@string/low"
                     android:gravity="center"
                     android:textStyle="bold"
                     android:textColor="@color/green"/>
@@ -142,7 +142,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Medium"
+                    android:text="@string/medium"
                     android:gravity="center"
                     android:textStyle="bold"
                     android:textColor="@color/yellow"/>
@@ -175,7 +175,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="High"
+                    android:text="@string/high"
                     android:gravity="center"
                     android:textStyle="bold"
                     android:textColor="@color/red"/>

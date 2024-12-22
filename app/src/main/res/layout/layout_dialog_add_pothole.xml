@@ -24,7 +24,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Level"
+            android:text="@string/level"
             android:textSize="20dp"/>
 
         <Spinner
@@ -40,7 +40,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:text="Picture"
+            android:text="@string/picture"
             android:textSize="20dp"/>
         <ImageView
             android:id="@+id/dialog_img"
@@ -61,7 +61,7 @@
                 android:layout_height="wrap_content"
                 android:backgroundTint="#B9B5B5"
                 android:background="@drawable/button_radius_10dp"
-                android:text="Cancel"
+                android:text="@string/cancel"
                 android:textColor="@color/white"/>
             <Button
                 android:id="@+id/btn_Submit"
@@ -69,7 +69,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@drawable/bground_dialogadd_btnsubmit_high"
-                android:text="Submit"
+                android:text="@string/submit"
                 android:layout_marginLeft="50dp"
                 android:textColor="@color/white"/>
 
